@@ -188,7 +188,7 @@ input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-sha
 </div>
 
 <!-- ── SETUP SCREEN ── -->
-<div class="setup-screen hidden" id="setup-screen">
+<div class="setup-screen hidden" id="setup-screen" style="display:none!important">
   <div class="setup-card">
     <div style="font-size:24px;margin-bottom:12px">⚙️</div>
     <h1 style="font-size:20px;font-weight:800;margin-bottom:6px">Configuração Inicial</h1>
@@ -401,7 +401,7 @@ let history=[];
 let users=[...DEFAULT_USERS];
 let curTab='farol',curFil='all';
 let modalId=null,modalStatus='ok';
-let apiKey='$2a$10$uoDViN5Pw/ehsZajN8qQlO.uuDjgNl2UiqiXFbhF3w60FiL8axyYC',binId='6a6bf580f5f4af5e29d8233c';
+const BACKEND='https://script.google.com/macros/s/AKfycbyFQ-YMaup8Yy8IUgm6PN_Goy_43CSX0has6ktYSeB7c2UnUZe6Qf0O0MGGxmGOAIjE/exec';
 let pollTimer=null,isSaving=false;
 let currentUser=null;
 
@@ -458,49 +458,23 @@ function logout(){
   document.getElementById('login-error').style.display='none';
 }
 
-// ── JSONBIN ────────────────────────────────────────────────────────────────
-const BB='https://api.jsonbin.io/v3';
-async function createBin(data){
-  const r=await fetch(`${BB}/b`,{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':apiKey,'X-Bin-Name':'farol-selecionadoras','X-Bin-Private':'false'},body:JSON.stringify(data)});
-  if(!r.ok)throw new Error('Erro ao criar bin: '+r.status);
-  return (await r.json()).metadata.id;
-}
+// ── GOOGLE APPS SCRIPT BACKEND ────────────────────────────────────────────
 async function readBin(){
-  const r=await fetch(`${BB}/b/${binId}/latest`,{headers:{'X-Master-Key':apiKey}});
+  const r=await fetch(BACKEND);
   if(!r.ok)throw new Error('Erro ao ler: '+r.status);
-  return (await r.json()).record;
+  const data=await r.json();
+  if(data.error)throw new Error(data.error);
+  return data;
 }
 async function writeBin(data){
-  const r=await fetch(`${BB}/b/${binId}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':apiKey},body:JSON.stringify(data)});
+  const r=await fetch(BACKEND,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(data)});
   if(!r.ok)throw new Error('Erro ao salvar: '+r.status);
+  const res=await r.json();
+  if(res.error)throw new Error(res.error);
 }
 
 // ── SETUP ──────────────────────────────────────────────────────────────────
-async function conectar(){
-  const key=document.getElementById('api-key-input').value.trim();
-  if(!key){showSetupError('Cole sua API Key antes de continuar.');return;}
-  const btn=document.getElementById('setup-btn');
-  btn.disabled=true;btn.textContent='↻ Conectando...';
-  document.getElementById('setup-error').style.display='none';
-  try{
-    apiKey=key;
-    const savedBin=localStorage.getItem('farol-bin-'+btoa(key).slice(0,20));
-    if(savedBin){binId=savedBin;await readBin();}
-    else{
-      const initialData={machines:BASE_MACHINES.map(m=>({...m})),history:[],users:DEFAULT_USERS};
-      binId=await createBin(initialData);
-      localStorage.setItem('farol-bin-'+btoa(key).slice(0,20),binId);
-    }
-    localStorage.setItem('farol-apikey',key);
-    document.getElementById('setup-screen').classList.add('hidden');
-    await initApp();
-  }catch(e){
-    showSetupError('Não foi possível conectar. Verifique a API Key. Erro: '+e.message);
-    btn.disabled=false;btn.textContent='🔌 Conectar e iniciar';
-  }
-}
-function showSetupError(msg){const el=document.getElementById('setup-error');el.textContent=msg;el.style.display='block';}
-function resetConfig(){if(!confirm('Redefinir conexão?'))return;localStorage.removeItem('farol-apikey');location.reload();}
+function resetConfig(){if(!confirm('Redefinir e recarregar?'))return;sessionStorage.clear();localStorage.clear();location.reload();}
 
 // ── INIT ───────────────────────────────────────────────────────────────────
 async function initApp(){
@@ -757,7 +731,6 @@ document.addEventListener('keydown',e=>{
 
 // ── BOOT ───────────────────────────────────────────────────────────────────
 (function boot(){
-  // Keys are embedded — skip setup screen entirely
   // Load users from localStorage cache for login check before cloud loads
   const cachedUsers=localStorage.getItem('farol-users-cache');
   if(cachedUsers){try{users=JSON.parse(cachedUsers);}catch(_){}}
@@ -768,6 +741,11 @@ document.addEventListener('keydown',e=>{
     try{
       const u=JSON.parse(sess);
       currentUser=u;
+      // Reset to farol tab
+      ['farol','tabela','historico','admin'].forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.classList.add('hidden');});
+      document.getElementById('view-farol').classList.remove('hidden');
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+      document.querySelector('.tab')?.classList.add('on');
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('app').classList.remove('hidden');
       if(u.role==='admin')document.getElementById('tab-admin').style.display='';
