@@ -386,7 +386,14 @@ const BASE_MACHINES=Array.from({length:16},(_,i)=>({
 }));
 
 // Default admin user (password hashed as simple base64 for portability)
-const DEFAULT_USERS=[{username:'Fabricio',password:btoa('admin123'),role:'admin',createdAt:'Sistema'}];
+const DEFAULT_USERS=[
+  {username:'Fabricio',password:btoa('admin123'),role:'admin',createdAt:'Sistema'},
+  {username:'Jean Serpa',password:btoa('operador123'),role:'operador',createdAt:'Sistema'},
+  {username:'João Cristovão',password:btoa('operador123'),role:'operador',createdAt:'Sistema'},
+  {username:'Vinícius Lucena',password:btoa('operador123'),role:'operador',createdAt:'Sistema'},
+  {username:'Kassio Lira',password:btoa('operador123'),role:'operador',createdAt:'Sistema'},
+  {username:'Edigleide Souza',password:btoa('operador123'),role:'operador',createdAt:'Sistema'},
+];
 
 // ── STATE ──────────────────────────────────────────────────────────────────
 let machines=[...BASE_MACHINES.map(m=>({...m}))];
@@ -490,7 +497,13 @@ async function initApp(){
     const data=await readBin();
     if(data.machines)machines=data.machines;
     if(data.history)history=data.history;
-    if(data.users&&data.users.length)users=data.users;
+    if(data.users&&data.users.length){
+      // Merge: keep cloud users, add any new DEFAULT_USERS not yet in cloud
+      users=data.users;
+      DEFAULT_USERS.forEach(du=>{
+        if(!users.find(u=>u.username===du.username)) users.push(du);
+      });
+    }
     document.getElementById('loading-overlay').classList.add('hidden');
     document.getElementById('main-content').classList.remove('hidden');
     renderAll();
@@ -507,7 +520,14 @@ async function poll(){
   if(isSaving)return;
   try{
     const data=await readBin();
-    if(data.machines){machines=data.machines;if(data.history)history=data.history;if(data.users&&data.users.length)users=data.users;}
+    if(data.machines){
+      machines=data.machines;
+      if(data.history)history=data.history;
+      if(data.users&&data.users.length){
+        users=data.users;
+        DEFAULT_USERS.forEach(du=>{if(!users.find(u=>u.username===du.username))users.push(du);});
+      }
+    }
     renderAll();
     setSyncState('ok','AO VIVO');
     document.getElementById('sync-time').textContent=ts();
