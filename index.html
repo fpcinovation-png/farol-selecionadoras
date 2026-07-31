@@ -657,6 +657,7 @@ async function delUser(i){
 
 // ── TABS ───────────────────────────────────────────────────────────────────
 function setTab(t,btn){
+  if(t==='admin'&&currentUser?.role!=='admin'){showToast('⛔ Acesso restrito a administradores','tnk');return;}
   curTab=t;
   ['farol','tabela','historico','admin'].forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.classList.add('hidden');});
   document.getElementById('view-'+t).classList.remove('hidden');
