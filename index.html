@@ -15,18 +15,55 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-s
 @keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
 @keyframes pnk{0%,100%{box-shadow:0 0 0 4px var(--nkr)}50%{box-shadow:0 0 0 8px rgba(220,38,38,.04)}}
 @keyframes mi{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .livdot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:lp 2s infinite;flex-shrink:0}
 .pnk{animation:pnk 2s ease infinite}
 .modal-box{animation:mi .18s ease}
+.spin{display:inline-block;animation:spin .8s linear infinite}
 table{width:100%;border-collapse:collapse;font-size:13px}
 thead th{text-align:left;background:#f8fafc;color:var(--mu);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding:10px 15px;border-bottom:1px solid var(--ln);white-space:nowrap;font-weight:700}
 tbody td{padding:10px 15px;border-bottom:1px solid var(--ln);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:#fafbfd}
-input,textarea,button{font-family:inherit}
+input,textarea,button,select{font-family:inherit}
 input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+
+/* ── LOGIN ── */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#1e3a5f 0%,#1e4080 50%,#1a3560 100%);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:400px;max-width:100%;padding:40px;animation:fadein .3s ease}
+.login-logo{width:60px;height:60px;background:var(--ac);border-radius:16px;display:grid;place-items:center;margin:0 auto 20px}
+.login-title{font-size:22px;font-weight:800;text-align:center;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--mu);text-align:center;margin-bottom:28px}
+.login-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:6px}
+.login-input{width:100%;border:1.5px solid var(--ln);border-radius:10px;padding:11px 14px;font-size:14px;background:#f8fafc;color:var(--ink);transition:border-color .15s;margin-bottom:14px}
+.login-input:focus{border-color:var(--a2);background:#fff;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.login-btn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;margin-top:4px}
+.login-btn:hover{background:#16305a}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-error{background:#fef2f2;border:1px solid #fecaca;color:var(--nk);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+.login-footer{text-align:center;margin-top:20px;font-size:12px;color:var(--mu)}
+
+/* ── SETUP ── */
+.setup-screen{position:fixed;inset:0;background:var(--bg);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px}
+.setup-card{background:var(--card);border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.12);width:500px;max-width:100%;padding:36px}
+.setup-step{display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid var(--ln);border-radius:10px;padding:14px;margin-bottom:10px}
+.setup-num{width:24px;height:24px;border-radius:50%;background:var(--a2);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+.setup-input{width:100%;border:1.5px solid var(--ln);border-radius:9px;padding:10px 12px;font-size:13px;background:var(--bg);color:var(--ink);margin-top:14px;transition:border-color .15s}
+.setup-input:focus{border-color:var(--a2);outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.setup-btn{width:100%;background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;transition:background .15s}
+.setup-btn:hover{background:#16305a}
+
+/* ── APP BAR ── */
 .bar{background:var(--ac);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.25);position:sticky;top:0;z-index:100}
 .bar-logo{width:32px;height:32px;background:rgba(255,255,255,.12);border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+.user-badge{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600}
+.user-avatar{width:22px;height:22px;border-radius:50%;background:var(--a2);display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.sync-dot-ok{width:7px;height:7px;border-radius:50%;background:#22c55e}
+.sync-dot-err{width:7px;height:7px;border-radius:50%;background:#ef4444}
+.sync-dot-busy{width:7px;height:7px;border-radius:50%;background:#facc15}
+
+/* ── MAIN ── */
 .wrap{max-width:1280px;margin:0 auto;padding:22px 18px 60px}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
 .kpi{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06);position:relative;overflow:hidden}
@@ -82,6 +119,25 @@ input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-sha
 .hi:hover{background:#fafbfd}
 .hdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
 .hdot.ok{background:var(--ok)}.hdot.wn{background:var(--wn)}.hdot.nk{background:var(--nk)}
+
+/* ── ADMIN PANEL ── */
+.admin-card{background:var(--card);border:1px solid var(--ln);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px}
+.admin-head{padding:14px 18px;border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;background:#f8fafc}
+.admin-head h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.add-user-form{padding:18px;border-bottom:1px solid var(--ln);display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.form-group{flex:1;min-width:150px}
+.form-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:5px}
+.form-input{width:100%;border:1.5px solid var(--ln);border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg);color:var(--ink);transition:border-color .15s}
+.form-select{width:100%;border:1.5px solid var(--ln);border-radius:8px;padding:8px 10px;font-size:13px;background:var(--bg);color:var(--ink)}
+.add-btn{background:var(--ac);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s}
+.add-btn:hover{background:#16305a}
+.role-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:10.5px;font-weight:700}
+.role-admin{background:#ede9fe;color:#7c3aed}
+.role-op{background:#dbeafe;color:#1d4ed8}
+.del-btn{border:1.5px solid #fecaca;background:transparent;color:var(--nk);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.del-btn:hover{background:var(--nk);color:#fff}
+
+/* ── MODALS ── */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .modal-box{background:var(--card);border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.06);width:420px;max-width:95vw;padding:26px}
 .msb{flex:1;border:2px solid var(--ln);border-radius:10px;background:var(--bg);padding:10px 6px;font-size:11.5px;font-weight:700;cursor:pointer;text-align:center;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s}
@@ -96,100 +152,187 @@ input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-sha
 .bc:hover{border-color:var(--ink);color:var(--ink)}
 .bs{background:var(--ac);color:#fff;border:none;border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(30,58,95,.3);transition:all .15s}
 .bs:hover{background:#16305a}
+.bs:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── TOAST ── */
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;transition:all .25s;pointer-events:none;z-index:300;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.tok{background:var(--ok)}.toast.twn{background:var(--wn)}.toast.tnk{background:var(--nk)}
+.toast.tok{background:var(--ok)}.toast.twn{background:var(--wn)}.toast.tnk{background:var(--nk)}.toast.tpu{background:#7c3aed}
+
 .hidden{display:none}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.kpis{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.grid{grid-template-columns:1fr}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="bar">
-  <div class="bar-logo">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2l1.5 3h-3z"/><path d="M9 7h6l1 4H8z"/><path d="M8.5 11h7l1.5 10H7z"/><path d="M10 15h4"/>
-    </svg>
-  </div>
-  <div>
-    <div style="font-size:15px;font-weight:800;letter-spacing:-.3px">Farol de Selecionadoras</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:1px">Selecionadoras 00–15 · dados salvos localmente</div>
-  </div>
-  <div style="flex:1"></div>
-  <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.85)">
-    <div class="livdot"></div>ATIVO
-  </div>
-  <div style="width:1px;height:16px;background:rgba(255,255,255,.2)"></div>
-  <div style="font-size:11px;color:rgba(255,255,255,.65);text-align:right;line-height:1.4">
-    Salvo: <b id="sync-time" style="color:#fff">—</b>
+<!-- ── LOGIN SCREEN ── -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l1.5 3h-3z"/><path d="M9 7h6l1 4H8z"/><path d="M8.5 11h7l1.5 10H7z"/><path d="M10 15h4"/>
+      </svg>
+    </div>
+    <div class="login-title">Farol de Selecionadoras</div>
+    <div class="login-sub">Acesse com suas credenciais</div>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-label">Usuário</div>
+    <input class="login-input" id="login-user" placeholder="Seu nome de usuário" autocomplete="username">
+    <div class="login-label">Senha</div>
+    <input class="login-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-footer">Sistema restrito · apenas usuários autorizados</div>
   </div>
 </div>
 
-<div class="wrap">
-  <!-- KPIs -->
-  <div class="kpis">
-    <div class="kpi kpi-ac"><div class="knum" id="k-total">16</div><div class="klbl">Selecionadoras monitoradas</div></div>
-    <div class="kpi kpi-ok"><div class="knum" id="k-ok">16</div><div class="klbl">Disponíveis</div></div>
-    <div class="kpi kpi-wn"><div class="knum" id="k-wn">0</div><div class="klbl">Disp. com observação</div></div>
-    <div class="kpi kpi-nk">
-      <div class="knum" id="k-nk">0</div><div class="klbl">Indisponíveis</div>
-      <div class="kbar"><div class="kfill" id="k-nk-bar" style="width:0%"></div></div>
+<!-- ── SETUP SCREEN ── -->
+<div class="setup-screen hidden" id="setup-screen">
+  <div class="setup-card">
+    <div style="font-size:24px;margin-bottom:12px">⚙️</div>
+    <h1 style="font-size:20px;font-weight:800;margin-bottom:6px">Configuração Inicial</h1>
+    <p style="color:var(--mu);font-size:13px;margin-bottom:20px;line-height:1.6">Cole sua <b>API Key do JSONBin.io</b> para conectar o banco de dados em nuvem.</p>
+    <div class="setup-step">
+      <div class="setup-num">1</div>
+      <div><b style="font-size:13px">Crie conta gratuita em jsonbin.io</b><br><span style="font-size:12px;color:var(--mu)">Sem cartão. Grátis para sempre.</span></div>
     </div>
+    <div class="setup-step">
+      <div class="setup-num">2</div>
+      <div><b style="font-size:13px">Vá em API Keys e copie sua chave</b><br><span style="font-size:12px;color:var(--mu)">Começa com $2a$10$...</span></div>
+    </div>
+    <input class="setup-input" id="api-key-input" placeholder="Cole sua API Key aqui: $2a$10$..." type="password">
+    <div id="setup-error" style="color:var(--nk);font-size:12px;margin-top:8px;display:none"></div>
+    <button class="setup-btn" id="setup-btn" onclick="conectar()">🔌 Conectar e iniciar</button>
   </div>
+</div>
 
-  <!-- TABS + META -->
-  <div class="tw">
-    <div class="tabs">
-      <button class="tab on" onclick="setTab('farol',this)">🚦 Farol</button>
-      <button class="tab" onclick="setTab('tabela',this)">📋 Tabela</button>
-      <button class="tab" onclick="setTab('historico',this)">📝 Histórico</button>
+<!-- ── APP ── -->
+<div id="app" class="hidden">
+  <div class="bar">
+    <div class="bar-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l1.5 3h-3z"/><path d="M9 7h6l1 4H8z"/><path d="M8.5 11h7l1.5 10H7z"/><path d="M10 15h4"/>
+      </svg>
+    </div>
+    <div>
+      <div style="font-size:15px;font-weight:800;letter-spacing:-.3px">Farol de Selecionadoras</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:1px">Dados em nuvem · sincroniza a cada 5s</div>
     </div>
     <div style="flex:1"></div>
-    <div class="mbadge">
-      🎯 Meta: <b style="color:var(--a2)">100%</b>
-      <span style="color:var(--ln);margin:0 2px">|</span>
-      Real: <b id="real-av" style="color:var(--ok)">100%</b>
+    <div class="user-badge">
+      <div class="user-avatar" id="user-avatar">F</div>
+      <span id="user-name-bar">Fabricio</span>
+      <span id="user-role-bar" style="font-size:10px;opacity:.7;margin-left:2px"></span>
     </div>
-  </div>
-
-  <!-- FAROL VIEW -->
-  <div id="view-farol">
-    <div class="grid" id="farol-grid"></div>
-  </div>
-
-  <!-- TABELA VIEW -->
-  <div id="view-tabela" class="hidden">
-    <div class="tcard">
-      <div class="tbar">
-        <input class="srch" id="t-search" placeholder="🔍 Buscar selecionadora..." oninput="renderTable()">
-        <button class="fb" id="fb-all" onclick="setFil('all',this)">Todas</button>
-        <button class="fb" id="fb-ok" onclick="setFil('ok',this)">● Disponíveis</button>
-        <button class="fb" id="fb-wn" onclick="setFil('warn',this)">● Com Obs.</button>
-        <button class="fb" id="fb-nk" onclick="setFil('nok',this)">● Indisponíveis</button>
-      </div>
-      <div id="tbl-body"></div>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.2)"></div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.7)">
+      <div class="sync-dot-ok" id="sync-dot"></div>
+      <span id="sync-label">AO VIVO</span>
     </div>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,.2)"></div>
+    <div style="font-size:11px;color:rgba(255,255,255,.65)">
+      <b id="sync-time" style="color:#fff">—</b>
+    </div>
+    <button onclick="logout()" style="background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:11.5px;font-weight:600">Sair</button>
   </div>
 
-  <!-- HISTÓRICO VIEW -->
-  <div id="view-historico" class="hidden">
-    <div class="hcard">
-      <div class="hhead">
-        <h3 style="font-size:14px;font-weight:700">Histórico de alterações</h3>
-        <span class="hcnt" id="h-count">0 registros</span>
+  <div class="wrap">
+    <div id="loading-overlay" style="text-align:center;padding:80px 20px;color:var(--mu)">
+      <div class="spin" style="font-size:32px;margin-bottom:16px">↻</div>
+      <div style="font-weight:600">Conectando ao banco de dados...</div>
+    </div>
+
+    <div id="main-content" class="hidden">
+      <!-- KPIs -->
+      <div class="kpis">
+        <div class="kpi kpi-ac"><div class="knum">16</div><div class="klbl">Selecionadoras monitoradas</div></div>
+        <div class="kpi kpi-ok"><div class="knum" id="k-ok">16</div><div class="klbl">Disponíveis</div></div>
+        <div class="kpi kpi-wn"><div class="knum" id="k-wn">0</div><div class="klbl">Disp. com observação</div></div>
+        <div class="kpi kpi-nk">
+          <div class="knum" id="k-nk">0</div><div class="klbl">Indisponíveis</div>
+          <div class="kbar"><div class="kfill" id="k-nk-bar" style="width:0%"></div></div>
+        </div>
       </div>
-      <div id="hist-list"></div>
+
+      <!-- TABS -->
+      <div class="tw">
+        <div class="tabs">
+          <button class="tab on" onclick="setTab('farol',this)">🚦 Farol</button>
+          <button class="tab" onclick="setTab('tabela',this)">📋 Tabela</button>
+          <button class="tab" onclick="setTab('historico',this)">📝 Histórico</button>
+          <button class="tab" id="tab-admin" onclick="setTab('admin',this)" style="display:none">👑 Admin</button>
+        </div>
+        <div style="flex:1"></div>
+        <div class="mbadge">🎯 Meta: <b style="color:var(--a2)">100%</b><span style="color:var(--ln);margin:0 2px">|</span>Real: <b id="real-av" style="color:var(--ok)">100%</b></div>
+      </div>
+
+      <!-- FAROL -->
+      <div id="view-farol"><div class="grid" id="farol-grid"></div></div>
+
+      <!-- TABELA -->
+      <div id="view-tabela" class="hidden">
+        <div class="tcard">
+          <div class="tbar">
+            <input class="srch" id="t-search" placeholder="🔍 Buscar..." oninput="renderTable()">
+            <button class="fb" onclick="setFil('all',this)">Todas</button>
+            <button class="fb" onclick="setFil('ok',this)">● Disponíveis</button>
+            <button class="fb" onclick="setFil('warn',this)">● Com Obs.</button>
+            <button class="fb" onclick="setFil('nok',this)">● Indisponíveis</button>
+          </div>
+          <div id="tbl-body"></div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div id="view-historico" class="hidden">
+        <div class="hcard">
+          <div class="hhead"><h3 style="font-size:14px;font-weight:700">Histórico de alterações</h3><span class="hcnt" id="h-count">0 registros</span></div>
+          <div id="hist-list"></div>
+        </div>
+      </div>
+
+      <!-- ADMIN -->
+      <div id="view-admin" class="hidden">
+        <div class="admin-card">
+          <div class="admin-head"><h3>👑 Painel Administrativo · Gestão de Usuários</h3></div>
+          <div class="add-user-form">
+            <div class="form-group">
+              <div class="form-label">Nome de usuário</div>
+              <input class="form-input" id="new-username" placeholder="ex: joao.silva">
+            </div>
+            <div class="form-group">
+              <div class="form-label">Senha</div>
+              <input class="form-input" id="new-password" type="password" placeholder="mínimo 6 caracteres">
+            </div>
+            <div class="form-group" style="max-width:150px">
+              <div class="form-label">Perfil</div>
+              <select class="form-select" id="new-role">
+                <option value="operador">Operador</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <button class="add-btn" onclick="addUser()">+ Adicionar usuário</button>
+          </div>
+          <div id="users-table"></div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-head"><h3>⚙️ Configuração do Sistema</h3></div>
+          <div style="padding:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;font-size:13px;color:var(--mu)">Redefinir conexão com o banco de dados (JSONBin API Key)</div>
+            <button onclick="resetConfig()" style="border:1.5px solid var(--nk);background:transparent;color:var(--nk);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;">Redefinir conexão</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL EDIÇÃO -->
 <div class="ov hidden" id="modal-ov" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <div style="font-size:17px;font-weight:800;margin-bottom:4px" id="m-title">Selecionadora 00</div>
-    <div style="font-size:12px;color:var(--mu);margin-bottom:18px">Atualize o status e as informações</div>
+    <div style="font-size:12px;color:var(--mu);margin-bottom:18px">Alteração será sincronizada para todos em tempo real</div>
     <div class="mlbl">Status</div>
     <div style="display:flex;gap:8px;margin-bottom:16px">
       <button class="msb" id="ms-ok" onclick="selStatus('ok')"><span style="font-size:20px">🟢</span>Disponível</button>
@@ -199,14 +342,8 @@ input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-sha
     <div class="mlbl">Observação</div>
     <textarea class="mta" id="m-obs" placeholder="Descreva o motivo ou detalhe..."></textarea>
     <div style="display:flex;gap:9px;margin-top:12px;margin-bottom:16px">
-      <div style="flex:1">
-        <div class="mlbl">Turno</div>
-        <input class="min2" id="m-turno" placeholder="Manhã / Tarde / Noite">
-      </div>
-      <div style="flex:1">
-        <div class="mlbl">Responsável</div>
-        <input class="min2" id="m-resp" placeholder="Nome do operador">
-      </div>
+      <div style="flex:1"><div class="mlbl">Turno</div><input class="min2" id="m-turno" placeholder="Manhã / Tarde / Noite"></div>
+      <div style="flex:1"><div class="mlbl">Responsável</div><input class="min2" id="m-resp" placeholder="Nome do operador"></div>
     </div>
     <div style="display:flex;gap:9px;justify-content:flex-end">
       <button class="bc" onclick="closeModal()">Cancelar</button>
@@ -215,41 +352,168 @@ input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-sha
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-const SK='farol-sel-v1', HK='farol-hist-v1';
+// ── CONSTANTS ─────────────────────────────────────────────────────────────
 const LBL={ok:'Disponível',warn:'Disp. c/ Obs.',nok:'Indisponível'};
 const PLB={ok:'DISPONÍVEL',warn:'COM OBS.',nok:'INDISPONÍVEL'};
 const ICO={ok:'🟢',warn:'🟡',nok:'🔴'};
 const CLS={ok:'ok',warn:'wn',nok:'nk'};
-
-function ts(){return new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
-
-// ── STATE ──────────────────────────────────────────────────────────────────
-let machines=Array.from({length:16},(_,i)=>({
+const BASE_MACHINES=Array.from({length:16},(_,i)=>({
   id:i,code:String(i).padStart(2,'0'),
   name:`Selecionadora ${String(i).padStart(2,'0')}`,
   status:'ok',obs:'',turno:'Manhã',resp:'',updatedAt:null
 }));
+
+// Default admin user (password hashed as simple base64 for portability)
+const DEFAULT_USERS=[{username:'Fabricio',password:btoa('admin123'),role:'admin',createdAt:'Sistema'}];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let machines=[...BASE_MACHINES.map(m=>({...m}))];
 let history=[];
+let users=[...DEFAULT_USERS];
 let curTab='farol',curFil='all';
 let modalId=null,modalStatus='ok';
+let apiKey='',binId='';
+let pollTimer=null,isSaving=false;
+let currentUser=null;
 
-// ── PERSIST ────────────────────────────────────────────────────────────────
-function loadData(){
-  try{const v=localStorage.getItem(SK);if(v)machines=JSON.parse(v);}catch(_){}
-  try{const v=localStorage.getItem(HK);if(v)history=JSON.parse(v);}catch(_){}
-}
-function saveData(){
-  try{localStorage.setItem(SK,JSON.stringify(machines));
-      localStorage.setItem(HK,JSON.stringify(history));
-      document.getElementById('sync-time').textContent=ts();}
-  catch(_){}
+function ts(){return new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+
+// ── AUTH ───────────────────────────────────────────────────────────────────
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-error');
+  if(!u||!p){err.textContent='Preencha usuário e senha.';err.style.display='block';return;}
+
+  // Check against users list (loaded from cloud or defaults)
+  const found=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===btoa(p));
+  if(!found){err.textContent='Usuário ou senha incorretos.';err.style.display='block';return;}
+
+  currentUser=found;
+  err.style.display='none';
+  sessionStorage.setItem('farol-user',JSON.stringify({username:found.username,role:found.role}));
+  document.getElementById('login-screen').classList.add('hidden');
+
+  // Show admin tab if admin
+  if(found.role==='admin') document.getElementById('tab-admin').style.display='';
+
+  // Update bar
+  document.getElementById('user-avatar').textContent=found.username[0].toUpperCase();
+  document.getElementById('user-name-bar').textContent=found.username;
+  document.getElementById('user-role-bar').textContent=found.role==='admin'?'· Admin':'· Operador';
+
+  // Check API config
+  const savedKey=localStorage.getItem('farol-apikey');
+  if(savedKey){
+    apiKey=savedKey;
+    const savedBin=localStorage.getItem('farol-bin-'+btoa(savedKey).slice(0,20));
+    if(savedBin){binId=savedBin;document.getElementById('app').classList.remove('hidden');initApp();return;}
+  }
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('setup-screen').classList.remove('hidden');
 }
 
-// ── RENDER ALL ─────────────────────────────────────────────────────────────
+function logout(){
+  sessionStorage.removeItem('farol-user');
+  currentUser=null;
+  clearInterval(pollTimer);
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-error').style.display='none';
+}
+
+// ── JSONBIN ────────────────────────────────────────────────────────────────
+const BB='https://api.jsonbin.io/v3';
+async function createBin(data){
+  const r=await fetch(`${BB}/b`,{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':apiKey,'X-Bin-Name':'farol-selecionadoras','X-Bin-Private':'false'},body:JSON.stringify(data)});
+  if(!r.ok)throw new Error('Erro ao criar bin: '+r.status);
+  return (await r.json()).metadata.id;
+}
+async function readBin(){
+  const r=await fetch(`${BB}/b/${binId}/latest`,{headers:{'X-Master-Key':apiKey}});
+  if(!r.ok)throw new Error('Erro ao ler: '+r.status);
+  return (await r.json()).record;
+}
+async function writeBin(data){
+  const r=await fetch(`${BB}/b/${binId}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':apiKey},body:JSON.stringify(data)});
+  if(!r.ok)throw new Error('Erro ao salvar: '+r.status);
+}
+
+// ── SETUP ──────────────────────────────────────────────────────────────────
+async function conectar(){
+  const key=document.getElementById('api-key-input').value.trim();
+  if(!key){showSetupError('Cole sua API Key antes de continuar.');return;}
+  const btn=document.getElementById('setup-btn');
+  btn.disabled=true;btn.textContent='↻ Conectando...';
+  document.getElementById('setup-error').style.display='none';
+  try{
+    apiKey=key;
+    const savedBin=localStorage.getItem('farol-bin-'+btoa(key).slice(0,20));
+    if(savedBin){binId=savedBin;await readBin();}
+    else{
+      const initialData={machines:BASE_MACHINES.map(m=>({...m})),history:[],users:DEFAULT_USERS};
+      binId=await createBin(initialData);
+      localStorage.setItem('farol-bin-'+btoa(key).slice(0,20),binId);
+    }
+    localStorage.setItem('farol-apikey',key);
+    document.getElementById('setup-screen').classList.add('hidden');
+    await initApp();
+  }catch(e){
+    showSetupError('Não foi possível conectar. Verifique a API Key. Erro: '+e.message);
+    btn.disabled=false;btn.textContent='🔌 Conectar e iniciar';
+  }
+}
+function showSetupError(msg){const el=document.getElementById('setup-error');el.textContent=msg;el.style.display='block';}
+function resetConfig(){if(!confirm('Redefinir conexão?'))return;localStorage.removeItem('farol-apikey');location.reload();}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+async function initApp(){
+  setSyncState('busy','Carregando...');
+  try{
+    const data=await readBin();
+    if(data.machines)machines=data.machines;
+    if(data.history)history=data.history;
+    if(data.users&&data.users.length)users=data.users;
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+    renderAll();
+    setSyncState('ok','AO VIVO');
+    document.getElementById('sync-time').textContent=ts();
+    pollTimer=setInterval(poll,5000);
+  }catch(e){
+    setSyncState('err','Erro');
+    document.getElementById('loading-overlay').innerHTML=`<div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-weight:600;margin-bottom:8px">Erro ao conectar</div><div style="font-size:13px;color:var(--mu);margin-bottom:16px">${e.message}</div><button onclick="location.reload()" class="bs">Tentar novamente</button>`;
+  }
+}
+
+async function poll(){
+  if(isSaving)return;
+  try{
+    const data=await readBin();
+    if(data.machines){machines=data.machines;if(data.history)history=data.history;if(data.users&&data.users.length)users=data.users;}
+    renderAll();
+    setSyncState('ok','AO VIVO');
+    document.getElementById('sync-time').textContent=ts();
+  }catch(_){setSyncState('err','Sem conexão');}
+}
+
+async function persistAll(){
+  isSaving=true;setSyncState('busy','Salvando...');
+  try{await writeBin({machines,history,users});setSyncState('ok','AO VIVO');document.getElementById('sync-time').textContent=ts();}
+  catch(e){setSyncState('err','Erro ao salvar');showToast('⚠️ Erro ao salvar na nuvem','tpu');console.error(e);}
+  finally{isSaving=false;}
+}
+
+function setSyncState(s,l){
+  document.getElementById('sync-dot').className=s==='ok'?'sync-dot-ok':s==='err'?'sync-dot-err':'sync-dot-busy';
+  document.getElementById('sync-label').textContent=l;
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
 function renderAll(){
   const ok=machines.filter(m=>m.status==='ok').length;
   const wn=machines.filter(m=>m.status==='warn').length;
@@ -259,34 +523,29 @@ function renderAll(){
   document.getElementById('k-ok').textContent=ok;
   document.getElementById('k-wn').textContent=wn;
   document.getElementById('k-nk').textContent=nk;
-  document.getElementById('k-nk-bar').style.width=Math.round(nk/machines.length*100)+'%';
-  const rel=document.getElementById('real-av');
-  rel.textContent=av+'%'; rel.style.color=ac;
-  renderFarol(); renderTable(); renderHistory();
+  document.getElementById('k-nk-bar').style.width=Math.round(nk/16*100)+'%';
+  const r=document.getElementById('real-av');r.textContent=av+'%';r.style.color=ac;
+  renderFarol();renderTable();renderHistory();
+  if(currentUser?.role==='admin')renderAdminUsers();
 }
 
-// ── FAROL ──────────────────────────────────────────────────────────────────
 function renderFarol(){
   document.getElementById('farol-grid').innerHTML=machines.map(m=>{
     const c=CLS[m.status];
-    return `<div class="mc ${c}" onclick="openModal(${m.id})">
-      <div class="mh">
-        <div class="mdot ${m.status==='nok'?'pnk':''}"></div>
+    return`<div class="mc ${c}" onclick="openModal(${m.id})">
+      <div class="mh"><div class="mdot${m.status==='nok'?' pnk':''}"></div>
         <div class="mname">${m.name}<small>ID: ${m.code} · ${m.turno||'—'}</small></div>
-        <div class="mpill">${PLB[m.status]}</div>
-      </div>
+        <div class="mpill">${PLB[m.status]}</div></div>
       <div class="mbody">
         <div class="olbl">Observação</div>
         <div class="otext" style="color:${m.obs?'var(--ink)':'var(--mu)'}">${m.obs||'<i>Sem observação registrada</i>'}</div>
         ${m.resp?`<div class="mmeta">👤 ${m.resp}</div>`:''}
         ${m.updatedAt?`<div class="mmeta" style="margin-top:2px">🕐 ${m.updatedAt}</div>`:''}
         <div class="ehint">Clique para editar →</div>
-      </div>
-    </div>`;
+      </div></div>`;
   }).join('');
 }
 
-// ── TABELA ─────────────────────────────────────────────────────────────────
 function renderTable(){
   const q=(document.getElementById('t-search').value||'').toLowerCase();
   const rows=machines.filter(m=>{
@@ -295,54 +554,83 @@ function renderTable(){
     return true;
   });
   if(!rows.length){document.getElementById('tbl-body').innerHTML='<div style="padding:40px;text-align:center;color:var(--mu)">Nenhuma encontrada.</div>';return;}
-  document.getElementById('tbl-body').innerHTML=`<table>
-    <thead><tr><th>Código</th><th>Selecionadora</th><th>Status</th><th>Observação</th><th>Turno</th><th>Responsável</th><th>Atualizado</th><th></th></tr></thead>
-    <tbody>${rows.map(m=>{const c=CLS[m.status];return`<tr>
-      <td style="font-weight:700;color:var(--ac)">${m.code}</td>
-      <td style="font-weight:600">${m.name}</td>
-      <td><span class="pl ${c}"><span class="pdot ${c}"></span>${LBL[m.status]}</span></td>
-      <td style="color:var(--mu);font-size:12px;max-width:200px">${m.obs||'—'}</td>
-      <td style="color:var(--mu);font-size:12px">${m.turno||'—'}</td>
-      <td style="color:var(--mu);font-size:12px">${m.resp||'—'}</td>
-      <td style="color:var(--mu);font-size:11.5px;white-space:nowrap">${m.updatedAt||'—'}</td>
-      <td><button class="edb" onclick="openModal(${m.id})">Editar</button></td>
-    </tr>`;}).join('')}</tbody></table>`;
+  document.getElementById('tbl-body').innerHTML=`<table><thead><tr><th>Código</th><th>Selecionadora</th><th>Status</th><th>Observação</th><th>Turno</th><th>Responsável</th><th>Atualizado</th><th></th></tr></thead><tbody>
+  ${rows.map(m=>{const c=CLS[m.status];return`<tr>
+    <td style="font-weight:700;color:var(--ac)">${m.code}</td><td style="font-weight:600">${m.name}</td>
+    <td><span class="pl ${c}"><span class="pdot ${c}"></span>${LBL[m.status]}</span></td>
+    <td style="color:var(--mu);font-size:12px;max-width:200px">${m.obs||'—'}</td>
+    <td style="color:var(--mu);font-size:12px">${m.turno||'—'}</td>
+    <td style="color:var(--mu);font-size:12px">${m.resp||'—'}</td>
+    <td style="color:var(--mu);font-size:11.5px;white-space:nowrap">${m.updatedAt||'—'}</td>
+    <td><button class="edb" onclick="openModal(${m.id})">Editar</button></td>
+  </tr>`;}).join('')}</tbody></table>`;
 }
 
-// ── HISTÓRICO ──────────────────────────────────────────────────────────────
 function renderHistory(){
   const cnt=history.length;
   document.getElementById('h-count').textContent=cnt+' registro'+(cnt!==1?'s':'');
-  if(!cnt){document.getElementById('hist-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--mu);font-size:13px">Nenhuma alteração ainda. Edite uma selecionadora para começar.</div>';return;}
+  if(!cnt){document.getElementById('hist-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--mu);font-size:13px">Nenhuma alteração ainda.</div>';return;}
   document.getElementById('hist-list').innerHTML=[...history].reverse().map(h=>{
-    const c=CLS[h.newStatus];
-    const hc=h.newStatus==='ok'?'var(--ok)':h.newStatus==='warn'?'var(--wn)':'var(--nk)';
-    return`<div class="hi">
-      <div class="hdot ${c}"></div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px">
-          <span style="font-weight:700;font-size:13px">${h.machineName}</span>
-          <span style="color:var(--mu)">→</span>
-          <span style="font-size:11px;font-weight:700;color:${hc}">${ICO[h.newStatus]} ${LBL[h.newStatus]}</span>
-          <span style="font-size:11px;color:var(--mu);margin-left:auto;white-space:nowrap">${h.at}</span>
-        </div>
-        ${h.obs?`<div style="font-size:11.5px;color:var(--mu);margin-top:2px">📝 ${h.obs}</div>`:''}
-        ${h.resp?`<div style="font-size:11.5px;color:var(--mu);margin-top:2px">👤 ${h.resp}</div>`:''}
+    const c=CLS[h.newStatus];const hc=h.newStatus==='ok'?'var(--ok)':h.newStatus==='warn'?'var(--wn)':'var(--nk)';
+    return`<div class="hi"><div class="hdot ${c}"></div><div style="flex:1">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px">
+        <span style="font-weight:700;font-size:13px">${h.machineName}</span>
+        <span style="color:var(--mu)">→</span>
+        <span style="font-size:11px;font-weight:700;color:${hc}">${ICO[h.newStatus]} ${LBL[h.newStatus]}</span>
+        <span style="font-size:11px;color:var(--mu);margin-left:auto;white-space:nowrap">${h.at}</span>
       </div>
-    </div>`;
+      ${h.obs?`<div style="font-size:11.5px;color:var(--mu);margin-top:2px">📝 ${h.obs}</div>`:''}
+      ${h.resp?`<div style="font-size:11.5px;color:var(--mu);margin-top:2px">👤 ${h.resp}</div>`:''}
+      ${h.user?`<div style="font-size:11px;color:var(--a2);margin-top:2px">🔐 ${h.user}</div>`:''}
+    </div></div>`;
   }).join('');
+}
+
+function renderAdminUsers(){
+  const el=document.getElementById('users-table');
+  if(!el)return;
+  el.innerHTML=`<table><thead><tr><th>Usuário</th><th>Perfil</th><th>Criado por</th><th></th></tr></thead><tbody>
+  ${users.map((u,i)=>`<tr>
+    <td style="font-weight:600">${u.username}</td>
+    <td><span class="role-badge ${u.role==='admin'?'role-admin':'role-op'}">${u.role==='admin'?'👑 Admin':'👤 Operador'}</span></td>
+    <td style="color:var(--mu);font-size:12px">${u.createdAt||'—'}</td>
+    <td>${u.username==='Fabricio'?'<span style="font-size:11px;color:var(--mu)">protegido</span>':`<button class="del-btn" onclick="delUser(${i})">Remover</button>`}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+// ── ADMIN USERS ────────────────────────────────────────────────────────────
+async function addUser(){
+  const un=document.getElementById('new-username').value.trim();
+  const pw=document.getElementById('new-password').value;
+  const role=document.getElementById('new-role').value;
+  if(!un||!pw){showToast('Preencha usuário e senha','tpu');return;}
+  if(pw.length<6){showToast('Senha mínima: 6 caracteres','tpu');return;}
+  if(users.find(u=>u.username.toLowerCase()===un.toLowerCase())){showToast('Usuário já existe','tpu');return;}
+  users.push({username:un,password:btoa(pw),role,createdAt:currentUser.username});
+  document.getElementById('new-username').value='';
+  document.getElementById('new-password').value='';
+  renderAdminUsers();
+  showToast(`✅ Usuário ${un} criado!`,'tok');
+  await persistAll();
+}
+
+async function delUser(i){
+  if(!confirm(`Remover usuário "${users[i].username}"?`))return;
+  users.splice(i,1);
+  renderAdminUsers();
+  showToast('Usuário removido','tpu');
+  await persistAll();
 }
 
 // ── TABS ───────────────────────────────────────────────────────────────────
 function setTab(t,btn){
   curTab=t;
-  ['farol','tabela','historico'].forEach(v=>document.getElementById('view-'+v).classList.add('hidden'));
+  ['farol','tabela','historico','admin'].forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.classList.add('hidden');});
   document.getElementById('view-'+t).classList.remove('hidden');
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
 
-// ── FILTER ─────────────────────────────────────────────────────────────────
 function setFil(f,btn){
   curFil=f;
   document.querySelectorAll('.fb').forEach(b=>b.className='fb');
@@ -354,8 +642,7 @@ function setFil(f,btn){
 
 // ── MODAL ──────────────────────────────────────────────────────────────────
 function openModal(id){
-  const m=machines[id];
-  modalId=id; modalStatus=m.status;
+  const m=machines[id];modalId=id;modalStatus=m.status;
   document.getElementById('m-title').textContent=m.name;
   document.getElementById('m-obs').value=m.obs||'';
   document.getElementById('m-turno').value=m.turno||'';
@@ -366,25 +653,23 @@ function openModal(id){
 function closeModal(){document.getElementById('modal-ov').classList.add('hidden');modalId=null;}
 function selStatus(s){modalStatus=s;updateModalBtns();}
 function updateModalBtns(){
-  ['ok','wn','nk'].forEach(c=>document.getElementById('ms-'+c.replace('wn','wn').replace('nk','nk')).className='msb');
   document.getElementById('ms-ok').className='msb'+(modalStatus==='ok'?' s-ok':'');
   document.getElementById('ms-wn').className='msb'+(modalStatus==='warn'?' s-wn':'');
   document.getElementById('ms-nk').className='msb'+(modalStatus==='nok'?' s-nk':'');
 }
-function saveModal(){
-  if(modalId===null)return;
-  const m=machines[modalId];
-  const t=ts();
+
+async function saveModal(){
+  if(modalId===null||isSaving)return;
+  const m=machines[modalId];const t=ts();
   const newObs=document.getElementById('m-obs').value.trim();
   const newTurno=document.getElementById('m-turno').value.trim();
   const newResp=document.getElementById('m-resp').value.trim();
-  history.push({machineName:m.name,prevStatus:m.status,newStatus:modalStatus,obs:newObs,resp:newResp,at:t});
+  history.push({machineName:m.name,prevStatus:m.status,newStatus:modalStatus,obs:newObs,resp:newResp,user:currentUser?.username,at:t});
   machines[modalId]={...m,status:modalStatus,obs:newObs,turno:newTurno||m.turno,resp:newResp,updatedAt:t};
-  saveData();
-  closeModal();
-  renderAll();
+  closeModal();renderAll();
   const c=CLS[modalStatus];
   showToast(`${ICO[modalStatus]} ${m.name} → ${LBL[modalStatus]}`,c==='ok'?'tok':c==='wn'?'twn':'tnk');
+  await persistAll();
 }
 
 // ── TOAST ──────────────────────────────────────────────────────────────────
@@ -392,19 +677,43 @@ let toastTmr=null;
 function showToast(msg,cls=''){
   clearTimeout(toastTmr);
   const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast '+cls+' show';
+  t.textContent=msg;t.className='toast '+cls+' show';
   toastTmr=setTimeout(()=>t.className='toast',2800);
 }
 
 // ── KEYBOARD ───────────────────────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape')closeModal();
+  if(e.key==='Enter'&&document.getElementById('login-screen')&&!document.getElementById('login-screen').classList.contains('hidden'))doLogin();
 });
 
-// ── INIT ───────────────────────────────────────────────────────────────────
-loadData();
-renderAll();
-document.getElementById('sync-time').textContent=localStorage.getItem(SK)?ts():'—';
+// ── BOOT ───────────────────────────────────────────────────────────────────
+(function boot(){
+  // Check session
+  const sess=sessionStorage.getItem('farol-user');
+  if(sess){
+    try{
+      const u=JSON.parse(sess);
+      currentUser=u;
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      if(u.role==='admin')document.getElementById('tab-admin').style.display='';
+      document.getElementById('user-avatar').textContent=u.username[0].toUpperCase();
+      document.getElementById('user-name-bar').textContent=u.username;
+      document.getElementById('user-role-bar').textContent=u.role==='admin'?'· Admin':'· Operador';
+      const savedKey=localStorage.getItem('farol-apikey');
+      if(savedKey){
+        apiKey=savedKey;
+        const savedBin=localStorage.getItem('farol-bin-'+btoa(savedKey).slice(0,20));
+        if(savedBin){binId=savedBin;initApp();return;}
+      }
+      document.getElementById('setup-screen').classList.remove('hidden');
+    }catch(_){sessionStorage.removeItem('farol-user');}
+  }
+  // Load users from localStorage cache for login check before cloud loads
+  const cachedUsers=localStorage.getItem('farol-users-cache');
+  if(cachedUsers){try{users=JSON.parse(cachedUsers);}catch(_){}}
+})();
 </script>
 </body>
 </html>
