@@ -436,7 +436,7 @@ function doLogin(){
   // Update bar
   document.getElementById('user-avatar').textContent=found.username[0].toUpperCase();
   document.getElementById('user-name-bar').textContent=found.username;
-  document.getElementById('user-role-bar').textContent=found.role==='admin'?'· Admin':'· Operador';
+  document.getElementById('user-role-bar').textContent=found.role==='admin'?'· Admin':'';
 
   // Keys embedded — go straight to app
   initApp();
@@ -773,7 +773,7 @@ document.addEventListener('keydown',e=>{
       if(u.role==='admin')document.getElementById('tab-admin').style.display='';
       document.getElementById('user-avatar').textContent=u.username[0].toUpperCase();
       document.getElementById('user-name-bar').textContent=u.username;
-      document.getElementById('user-role-bar').textContent=u.role==='admin'?'· Admin':'· Operador';
+      document.getElementById('user-role-bar').textContent=u.role==='admin'?'· Admin':'';
       initApp();return;
     }catch(_){sessionStorage.removeItem('farol-user');}
   }
