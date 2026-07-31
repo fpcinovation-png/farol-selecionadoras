@@ -375,7 +375,7 @@ let history=[];
 let users=[...DEFAULT_USERS];
 let curTab='farol',curFil='all';
 let modalId=null,modalStatus='ok';
-let apiKey='',binId='';
+let apiKey='$2a$10$uoDViN5Pw/ehsZajN8qQlO.uuDjgNl2UiqiXFbhF3w60FiL8axyYC',binId='6a6bf580f5f4af5e29d8233c';
 let pollTimer=null,isSaving=false;
 let currentUser=null;
 
@@ -396,6 +396,7 @@ function doLogin(){
   err.style.display='none';
   sessionStorage.setItem('farol-user',JSON.stringify({username:found.username,role:found.role}));
   document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
 
   // Show admin tab if admin
   if(found.role==='admin') document.getElementById('tab-admin').style.display='';
@@ -405,15 +406,8 @@ function doLogin(){
   document.getElementById('user-name-bar').textContent=found.username;
   document.getElementById('user-role-bar').textContent=found.role==='admin'?'· Admin':'· Operador';
 
-  // Check API config
-  const savedKey=localStorage.getItem('farol-apikey');
-  if(savedKey){
-    apiKey=savedKey;
-    const savedBin=localStorage.getItem('farol-bin-'+btoa(savedKey).slice(0,20));
-    if(savedBin){binId=savedBin;document.getElementById('app').classList.remove('hidden');initApp();return;}
-  }
-  document.getElementById('app').classList.remove('hidden');
-  document.getElementById('setup-screen').classList.remove('hidden');
+  // Keys embedded — go straight to app
+  initApp();
 }
 
 function logout(){
@@ -689,6 +683,11 @@ document.addEventListener('keydown',e=>{
 
 // ── BOOT ───────────────────────────────────────────────────────────────────
 (function boot(){
+  // Keys are embedded — skip setup screen entirely
+  // Load users from localStorage cache for login check before cloud loads
+  const cachedUsers=localStorage.getItem('farol-users-cache');
+  if(cachedUsers){try{users=JSON.parse(cachedUsers);}catch(_){}}
+
   // Check session
   const sess=sessionStorage.getItem('farol-user');
   if(sess){
@@ -701,18 +700,9 @@ document.addEventListener('keydown',e=>{
       document.getElementById('user-avatar').textContent=u.username[0].toUpperCase();
       document.getElementById('user-name-bar').textContent=u.username;
       document.getElementById('user-role-bar').textContent=u.role==='admin'?'· Admin':'· Operador';
-      const savedKey=localStorage.getItem('farol-apikey');
-      if(savedKey){
-        apiKey=savedKey;
-        const savedBin=localStorage.getItem('farol-bin-'+btoa(savedKey).slice(0,20));
-        if(savedBin){binId=savedBin;initApp();return;}
-      }
-      document.getElementById('setup-screen').classList.remove('hidden');
+      initApp();return;
     }catch(_){sessionStorage.removeItem('farol-user');}
   }
-  // Load users from localStorage cache for login check before cloud loads
-  const cachedUsers=localStorage.getItem('farol-users-cache');
-  if(cachedUsers){try{users=JSON.parse(cachedUsers);}catch(_){}}
 })();
 </script>
 </body>
