@@ -408,13 +408,28 @@ let currentUser=null;
 function ts(){return new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 
 // ── AUTH ───────────────────────────────────────────────────────────────────
-function doLogin(){
+async function doLogin(){
   const u=document.getElementById('login-user').value.trim();
   const p=document.getElementById('login-pass').value;
   const err=document.getElementById('login-error');
+  const btn=document.getElementById('login-btn');
   if(!u||!p){err.textContent='Preencha usuário e senha.';err.style.display='block';return;}
 
-  // Check against users list (loaded from cloud or defaults)
+  // Load latest users from cloud before validating
+  btn.disabled=true;btn.textContent='Verificando...';
+  err.style.display='none';
+  try{
+    const data=await readBin();
+    if(data.users&&data.users.length){
+      users=data.users;
+      localStorage.setItem('farol-users-cache',JSON.stringify(users));
+    }
+  }catch(_){
+    // fallback to cached users if cloud unreachable
+  }
+  btn.disabled=false;btn.textContent='Entrar';
+
+  // Check against users list
   const found=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===btoa(p));
   if(!found){err.textContent='Usuário ou senha incorretos.';err.style.display='block';return;}
 
