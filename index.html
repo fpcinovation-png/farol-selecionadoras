@@ -510,11 +510,8 @@ async function initApp(){
     if(data.machines)machines=data.machines;
     if(data.history)history=data.history;
     if(data.users&&data.users.length){
-      // Merge: keep cloud users, add any new DEFAULT_USERS not yet in cloud
+      // Cloud is the source of truth — use it as-is
       users=data.users;
-      DEFAULT_USERS.forEach(du=>{
-        if(!users.find(u=>u.username===du.username)) users.push(du);
-      });
     }
     document.getElementById('loading-overlay').classList.add('hidden');
     document.getElementById('main-content').classList.remove('hidden');
@@ -535,10 +532,7 @@ async function poll(){
     if(data.machines){
       machines=data.machines;
       if(data.history)history=data.history;
-      if(data.users&&data.users.length){
-        users=data.users;
-        DEFAULT_USERS.forEach(du=>{if(!users.find(u=>u.username===du.username))users.push(du);});
-      }
+      if(data.users&&data.users.length) users=data.users;
     }
     renderAll();
     setSyncState('ok','AO VIVO');
