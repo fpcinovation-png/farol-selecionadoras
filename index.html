@@ -421,6 +421,12 @@ function doLogin(){
   currentUser=found;
   err.style.display='none';
   sessionStorage.setItem('farol-user',JSON.stringify({username:found.username,role:found.role}));
+  // Always start on farol tab
+  ['farol','tabela','historico','admin'].forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.classList.add('hidden');});
+  document.getElementById('view-farol').classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.tab')?.classList.add('on');
+
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
 
@@ -440,6 +446,12 @@ function logout(){
   sessionStorage.removeItem('farol-user');
   currentUser=null;
   clearInterval(pollTimer);
+  // Reset to farol tab
+  ['farol','tabela','historico','admin'].forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.classList.add('hidden');});
+  document.getElementById('view-farol').classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.tab')?.classList.add('on');
+  document.getElementById('tab-admin').style.display='none';
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('login-pass').value='';
