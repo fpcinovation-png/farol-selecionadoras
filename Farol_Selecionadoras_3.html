@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farol de Selecionadoras</title>
+<style>
+:root{--bg:#f0f2f5;--card:#fff;--ink:#111827;--mu:#6b7280;--ln:#e5e7eb;
+--ok:#059669;--okb:#ecfdf5;--okr:rgba(5,150,105,.18);
+--wn:#d97706;--wnb:#fffbeb;--wnr:rgba(217,119,6,.18);
+--nk:#dc2626;--nkb:#fef2f2;--nkr:rgba(220,38,38,.18);
+--ac:#1e3a5f;--a2:#2563eb;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;min-height:100vh}
+@keyframes lp{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+@keyframes pnk{0%,100%{box-shadow:0 0 0 4px var(--nkr)}50%{box-shadow:0 0 0 8px rgba(220,38,38,.04)}}
+@keyframes mi{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+.livdot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:lp 2s infinite;flex-shrink:0}
+.pnk{animation:pnk 2s ease infinite}
+.modal-box{animation:mi .18s ease}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;background:#f8fafc;color:var(--mu);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding:10px 15px;border-bottom:1px solid var(--ln);white-space:nowrap;font-weight:700}
+tbody td{padding:10px 15px;border-bottom:1px solid var(--ln);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbfd}
+input,textarea,button{font-family:inherit}
+input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.bar{background:var(--ac);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.25);position:sticky;top:0;z-index:100}
+.bar-logo{width:32px;height:32px;background:rgba(255,255,255,.12);border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+.wrap{max-width:1280px;margin:0 auto;padding:22px 18px 60px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.kpi-ok::before{background:var(--ok)}.kpi-wn::before{background:var(--wn)}.kpi-nk::before{background:var(--nk)}.kpi-ac::before{background:var(--a2)}
+.knum{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:3px}
+.kpi-ok .knum{color:var(--ok)}.kpi-wn .knum{color:var(--wn)}.kpi-nk .knum{color:var(--nk)}.kpi-ac .knum{color:var(--a2)}
+.klbl{font-size:11.5px;color:var(--mu);font-weight:500}
+.kbar{height:5px;border-radius:99px;background:var(--ln);margin-top:10px;overflow:hidden}
+.kfill{height:100%;border-radius:99px;background:var(--nk);transition:width .6s ease}
+.tw{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--ln);border-radius:9px;padding:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.tab{background:transparent;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;color:var(--mu);cursor:pointer;transition:all .15s}
+.tab.on{background:var(--ac);color:#fff;box-shadow:0 1px 4px rgba(30,58,95,.3)}
+.mbadge{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--ln);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--mu);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.mc{background:var(--card);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06);overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .15s,border-color .3s;border:2px solid var(--ln)}
+.mc:hover{box-shadow:0 2px 8px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);transform:translateY(-1px)}
+.mc.ok{border-color:var(--ok)}.mc.wn{border-color:var(--wn)}.mc.nk{border-color:var(--nk)}
+.mh{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--ln)}
+.mc.ok .mh{background:var(--okb)}.mc.wn .mh{background:var(--wnb)}.mc.nk .mh{background:var(--nkb)}
+.mdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.mc.ok .mdot{background:var(--ok);box-shadow:0 0 0 4px var(--okr)}
+.mc.wn .mdot{background:var(--wn);box-shadow:0 0 0 4px var(--wnr)}
+.mc.nk .mdot{background:var(--nk);box-shadow:0 0 0 4px var(--nkr)}
+.mname{flex:1;font-weight:700;font-size:13px;line-height:1.3}
+.mname small{display:block;font-size:10px;font-weight:500;color:var(--mu);margin-top:1px}
+.mpill{font-size:9.5px;font-weight:800;letter-spacing:.5px;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.mc.ok .mpill{background:var(--ok);color:#fff}.mc.wn .mpill{background:var(--wn);color:#fff}.mc.nk .mpill{background:var(--nk);color:#fff}
+.mbody{padding:11px 13px}
+.olbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:4px}
+.otext{font-size:11.5px;line-height:1.45;min-height:32px}
+.mmeta{margin-top:7px;font-size:10.5px;color:var(--mu)}
+.ehint{margin-top:9px;font-size:10px;color:var(--a2);font-weight:600;text-align:right}
+.tcard{background:var(--card);border:1px solid var(--ln);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06);overflow:hidden}
+.tbar{padding:13px 15px;border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.srch{border:1.5px solid var(--ln);border-radius:8px;padding:7px 11px;font-size:13px;background:var(--bg);color:var(--ink);min-width:180px;flex:1;max-width:300px;transition:border-color .15s}
+.fb{display:inline-flex;align-items:center;gap:5px;border:1.5px solid var(--ln);background:var(--card);border-radius:8px;padding:6px 11px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--mu);transition:all .15s}
+.fb.f-ok{border-color:var(--ok);background:var(--okb);color:var(--ok)}
+.fb.f-wn{border-color:var(--wn);background:var(--wnb);color:var(--wn)}
+.fb.f-nk{border-color:var(--nk);background:var(--nkb);color:var(--nk)}
+.pl{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:3px 9px;border-radius:99px}
+.pl.ok{background:var(--okb);color:var(--ok)}.pl.wn{background:var(--wnb);color:var(--wn)}.pl.nk{background:var(--nkb);color:var(--nk)}
+.pdot{width:6px;height:6px;border-radius:50%}
+.ok .pdot{background:var(--ok)}.wn .pdot{background:var(--wn)}.nk .pdot{background:var(--nk)}
+.edb{border:1.5px solid var(--a2);background:transparent;color:var(--a2);border-radius:7px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+.edb:hover{background:var(--a2);color:#fff}
+.hcard{background:var(--card);border:1px solid var(--ln);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,.06);overflow:hidden}
+.hhead{padding:13px 17px;border-bottom:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between}
+.hcnt{font-size:11px;font-weight:600;color:var(--mu);background:var(--bg);border-radius:99px;padding:2px 10px}
+.hi{display:flex;align-items:flex-start;gap:13px;padding:13px 17px;border-bottom:1px solid var(--ln)}
+.hi:last-child{border-bottom:none}
+.hi:hover{background:#fafbfd}
+.hdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.hdot.ok{background:var(--ok)}.hdot.wn{background:var(--wn)}.hdot.nk{background:var(--nk)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-box{background:var(--card);border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.06);width:420px;max-width:95vw;padding:26px}
+.msb{flex:1;border:2px solid var(--ln);border-radius:10px;background:var(--bg);padding:10px 6px;font-size:11.5px;font-weight:700;cursor:pointer;text-align:center;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s}
+.msb:hover{border-color:var(--a2)}
+.msb.s-ok{border-color:var(--ok);background:var(--okb);color:var(--ok)}
+.msb.s-wn{border-color:var(--wn);background:var(--wnb);color:var(--wn)}
+.msb.s-nk{border-color:var(--nk);background:var(--nkb);color:var(--nk)}
+.mta{width:100%;border:1.5px solid var(--ln);border-radius:9px;padding:9px 11px;font-size:13px;resize:none;background:var(--bg);color:var(--ink);min-height:76px;line-height:1.45;transition:border-color .15s}
+.min2{width:100%;border:1.5px solid var(--ln);border-radius:8px;padding:7px 9px;font-size:12px;background:var(--bg);color:var(--ink);transition:border-color .15s}
+.mlbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:6px}
+.bc{border:1.5px solid var(--ln);background:var(--card);border-radius:9px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--mu);transition:all .15s}
+.bc:hover{border-color:var(--ink);color:var(--ink)}
+.bs{background:var(--ac);color:#fff;border:none;border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(30,58,95,.3);transition:all .15s}
+.bs:hover{background:#16305a}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;transition:all .25s;pointer-events:none;z-index:300;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.tok{background:var(--ok)}.toast.twn{background:var(--wn)}.toast.tnk{background:var(--nk)}
+.hidden{display:none}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="bar">
+  <div class="bar-logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2l1.5 3h-3z"/><path d="M9 7h6l1 4H8z"/><path d="M8.5 11h7l1.5 10H7z"/><path d="M10 15h4"/>
+    </svg>
+  </div>
+  <div>
+    <div style="font-size:15px;font-weight:800;letter-spacing:-.3px">Farol de Selecionadoras</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:1px">Selecionadoras 00–15 · dados salvos localmente</div>
+  </div>
+  <div style="flex:1"></div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.85)">
+    <div class="livdot"></div>ATIVO
+  </div>
+  <div style="width:1px;height:16px;background:rgba(255,255,255,.2)"></div>
+  <div style="font-size:11px;color:rgba(255,255,255,.65);text-align:right;line-height:1.4">
+    Salvo: <b id="sync-time" style="color:#fff">—</b>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi kpi-ac"><div class="knum" id="k-total">16</div><div class="klbl">Selecionadoras monitoradas</div></div>
+    <div class="kpi kpi-ok"><div class="knum" id="k-ok">16</div><div class="klbl">Disponíveis</div></div>
+    <div class="kpi kpi-wn"><div class="knum" id="k-wn">0</div><div class="klbl">Disp. com observação</div></div>
+    <div class="kpi kpi-nk">
+      <div class="knum" id="k-nk">0</div><div class="klbl">Indisponíveis</div>
+      <div class="kbar"><div class="kfill" id="k-nk-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- TABS + META -->
+  <div class="tw">
+    <div class="tabs">
+      <button class="tab on" onclick="setTab('farol',this)">🚦 Farol</button>
+      <button class="tab" onclick="setTab('tabela',this)">📋 Tabela</button>
+      <button class="tab" onclick="setTab('historico',this)">📝 Histórico</button>
+    </div>
+    <div style="flex:1"></div>
+    <div class="mbadge">
+      🎯 Meta: <b style="color:var(--a2)">100%</b>
+      <span style="color:var(--ln);margin:0 2px">|</span>
+      Real: <b id="real-av" style="color:var(--ok)">100%</b>
+    </div>
+  </div>
+
+  <!-- FAROL VIEW -->
+  <div id="view-farol">
+    <div class="grid" id="farol-grid"></div>
+  </div>
+
+  <!-- TABELA VIEW -->
+  <div id="view-tabela" class="hidden">
+    <div class="tcard">
+      <div class="tbar">
+        <input class="srch" id="t-search" placeholder="🔍 Buscar selecionadora..." oninput="renderTable()">
+        <button class="fb" id="fb-all" onclick="setFil('all',this)">Todas</button>
+        <button class="fb" id="fb-ok" onclick="setFil('ok',this)">● Disponíveis</button>
+        <button class="fb" id="fb-wn" onclick="setFil('warn',this)">● Com Obs.</button>
+        <button class="fb" id="fb-nk" onclick="setFil('nok',this)">● Indisponíveis</button>
+      </div>
+      <div id="tbl-body"></div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO VIEW -->
+  <div id="view-historico" class="hidden">
+    <div class="hcard">
+      <div class="hhead">
+        <h3 style="font-size:14px;font-weight:700">Histórico de alterações</h3>
+        <span class="hcnt" id="h-count">0 registros</span>
+      </div>
+      <div id="hist-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="ov hidden" id="modal-ov" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div style="font-size:17px;font-weight:800;margin-bottom:4px" id="m-title">Selecionadora 00</div>
+    <div style="font-size:12px;color:var(--mu);margin-bottom:18px">Atualize o status e as informações</div>
+    <div class="mlbl">Status</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="msb" id="ms-ok" onclick="selStatus('ok')"><span style="font-size:20px">🟢</span>Disponível</button>
+      <button class="msb" id="ms-wn" onclick="selStatus('warn')"><span style="font-size:20px">🟡</span>Disp. c/ Obs.</button>
+      <button class="msb" id="ms-nk" onclick="selStatus('nok')"><span style="font-size:20px">🔴</span>Indisponível</button>
+    </div>
+    <div class="mlbl">Observação</div>
+    <textarea class="mta" id="m-obs" placeholder="Descreva o motivo ou detalhe..."></textarea>
+    <div style="display:flex;gap:9px;margin-top:12px;margin-bottom:16px">
+      <div style="flex:1">
+        <div class="mlbl">Turno</div>
+        <input class="min2" id="m-turno" placeholder="Manhã / Tarde / Noite">
+      </div>
+      <div style="flex:1">
+        <div class="mlbl">Responsável</div>
+        <input class="min2" id="m-resp" placeholder="Nome do operador">
+      </div>
+    </div>
+    <div style="display:flex;gap:9px;justify-content:flex-end">
+      <button class="bc" onclick="closeModal()">Cancelar</button>
+      <button class="bs" id="m-save" onclick="saveModal()">Salvar alteração</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SK='farol-sel-v1', HK='farol-hist-v1';
+const LBL={ok:'Disponível',warn:'Disp. c/ Obs.',nok:'Indisponível'};
+const PLB={ok:'DISPONÍVEL',warn:'COM OBS.',nok:'INDISPONÍVEL'};
+const ICO={ok:'🟢',warn:'🟡',nok:'🔴'};
+const CLS={ok:'ok',warn:'wn',nok:'nk'};
+
+function ts(){return new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let machines=Array.from({length:16},(_,i)=>({
+  id:i,code:String(i).padStart(2,'0'),
+  name:`Selecionadora ${String(i).padStart(2,'0')}`,
+  status:'ok',obs:'',turno:'Manhã',resp:'',updatedAt:null
+}));
+let history=[];
+let curTab='farol',curFil='all';
+let modalId=null,modalStatus='ok';
+
+// ── PERSIST ────────────────────────────────────────────────────────────────
+function loadData(){
+  try{const v=localStorage.getItem(SK);if(v)machines=JSON.parse(v);}catch(_){}
+  try{const v=localStorage.getItem(HK);if(v)history=JSON.parse(v);}catch(_){}
+}
+function saveData(){
+  try{localStorage.setItem(SK,JSON.stringify(machines));
+      localStorage.setItem(HK,JSON.stringify(history));
+      document.getElementById('sync-time').textContent=ts();}
+  catch(_){}
+}
+
+// ── RENDER ALL ─────────────────────────────────────────────────────────────
+function renderAll(){
+  const ok=machines.filter(m=>m.status==='ok').length;
+  const wn=machines.filter(m=>m.status==='warn').length;
+  const nk=machines.filter(m=>m.status==='nok').length;
+  const av=Math.round((ok+wn)/machines.length*100);
+  const ac=av>=90?'var(--ok)':av>=60?'var(--wn)':'var(--nk)';
+  document.getElementById('k-ok').textContent=ok;
+  document.getElementById('k-wn').textContent=wn;
+  document.getElementById('k-nk').textContent=nk;
+  document.getElementById('k-nk-bar').style.width=Math.round(nk/machines.length*100)+'%';
+  const rel=document.getElementById('real-av');
+  rel.textContent=av+'%'; rel.style.color=ac;
+  renderFarol(); renderTable(); renderHistory();
+}
+
+// ── FAROL ──────────────────────────────────────────────────────────────────
+function renderFarol(){
+  document.getElementById('farol-grid').innerHTML=machines.map(m=>{
+    const c=CLS[m.status];
+    return `<div class="mc ${c}" onclick="openModal(${m.id})">
+      <div class="mh">
+        <div class="mdot ${m.status==='nok'?'pnk':''}"></div>
+        <div class="mname">${m.name}<small>ID: ${m.code} · ${m.turno||'—'}</small></div>
+        <div class="mpill">${PLB[m.status]}</div>
+      </div>
+      <div class="mbody">
+        <div class="olbl">Observação</div>
+        <div class="otext" style="color:${m.obs?'var(--ink)':'var(--mu)'}">${m.obs||'<i>Sem observação registrada</i>'}</div>
+        ${m.resp?`<div class="mmeta">👤 ${m.resp}</div>`:''}
+        ${m.updatedAt?`<div class="mmeta" style="margin-top:2px">🕐 ${m.updatedAt}</div>`:''}
+        <div class="ehint">Clique para editar →</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TABELA ─────────────────────────────────────────────────────────────────
+function renderTable(){
+  const q=(document.getElementById('t-search').value||'').toLowerCase();
+  const rows=machines.filter(m=>{
+    if(curFil!=='all'&&m.status!==curFil)return false;
+    if(q&&!m.name.toLowerCase().includes(q)&&!m.obs.toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(!rows.length){document.getElementById('tbl-body').innerHTML='<div style="padding:40px;text-align:center;color:var(--mu)">Nenhuma encontrada.</div>';return;}
+  document.getElementById('tbl-body').innerHTML=`<table>
+    <thead><tr><th>Código</th><th>Selecionadora</th><th>Status</th><th>Observação</th><th>Turno</th><th>Responsável</th><th>Atualizado</th><th></th></tr></thead>
+    <tbody>${rows.map(m=>{const c=CLS[m.status];return`<tr>
+      <td style="font-weight:700;color:var(--ac)">${m.code}</td>
+      <td style="font-weight:600">${m.name}</td>
+      <td><span class="pl ${c}"><span class="pdot ${c}"></span>${LBL[m.status]}</span></td>
+      <td style="color:var(--mu);font-size:12px;max-width:200px">${m.obs||'—'}</td>
+      <td style="color:var(--mu);font-size:12px">${m.turno||'—'}</td>
+      <td style="color:var(--mu);font-size:12px">${m.resp||'—'}</td>
+      <td style="color:var(--mu);font-size:11.5px;white-space:nowrap">${m.updatedAt||'—'}</td>
+      <td><button class="edb" onclick="openModal(${m.id})">Editar</button></td>
+    </tr>`;}).join('')}</tbody></table>`;
+}
+
+// ── HISTÓRICO ──────────────────────────────────────────────────────────────
+function renderHistory(){
+  const cnt=history.length;
+  document.getElementById('h-count').textContent=cnt+' registro'+(cnt!==1?'s':'');
+  if(!cnt){document.getElementById('hist-list').innerHTML='<div style="padding:32px;text-align:center;color:var(--mu);font-size:13px">Nenhuma alteração ainda. Edite uma selecionadora para começar.</div>';return;}
+  document.getElementById('hist-list').innerHTML=[...history].reverse().map(h=>{
+    const c=CLS[h.newStatus];
+    const hc=h.newStatus==='ok'?'var(--ok)':h.newStatus==='warn'?'var(--wn)':'var(--nk)';
+    return`<div class="hi">
+      <div class="hdot ${c}"></div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px">
+          <span style="font-weight:700;font-size:13px">${h.machineName}</span>
+          <span style="color:var(--mu)">→</span>
+          <span style="font-size:11px;font-weight:700;color:${hc}">${ICO[h.newStatus]} ${LBL[h.newStatus]}</span>
+          <span style="font-size:11px;color:var(--mu);margin-left:auto;white-space:nowrap">${h.at}</span>
+        </div>
+        ${h.obs?`<div style="font-size:11.5px;color:var(--mu);margin-top:2px">📝 ${h.obs}</div>`:''}
+        ${h.resp?`<div style="font-size:11.5px;color:var(--mu);margin-top:2px">👤 ${h.resp}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+function setTab(t,btn){
+  curTab=t;
+  ['farol','tabela','historico'].forEach(v=>document.getElementById('view-'+v).classList.add('hidden'));
+  document.getElementById('view-'+t).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ── FILTER ─────────────────────────────────────────────────────────────────
+function setFil(f,btn){
+  curFil=f;
+  document.querySelectorAll('.fb').forEach(b=>b.className='fb');
+  if(f==='ok')btn.className='fb f-ok';
+  else if(f==='warn')btn.className='fb f-wn';
+  else if(f==='nok')btn.className='fb f-nk';
+  renderTable();
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────
+function openModal(id){
+  const m=machines[id];
+  modalId=id; modalStatus=m.status;
+  document.getElementById('m-title').textContent=m.name;
+  document.getElementById('m-obs').value=m.obs||'';
+  document.getElementById('m-turno').value=m.turno||'';
+  document.getElementById('m-resp').value=m.resp||'';
+  updateModalBtns();
+  document.getElementById('modal-ov').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal-ov').classList.add('hidden');modalId=null;}
+function selStatus(s){modalStatus=s;updateModalBtns();}
+function updateModalBtns(){
+  ['ok','wn','nk'].forEach(c=>document.getElementById('ms-'+c.replace('wn','wn').replace('nk','nk')).className='msb');
+  document.getElementById('ms-ok').className='msb'+(modalStatus==='ok'?' s-ok':'');
+  document.getElementById('ms-wn').className='msb'+(modalStatus==='warn'?' s-wn':'');
+  document.getElementById('ms-nk').className='msb'+(modalStatus==='nok'?' s-nk':'');
+}
+function saveModal(){
+  if(modalId===null)return;
+  const m=machines[modalId];
+  const t=ts();
+  const newObs=document.getElementById('m-obs').value.trim();
+  const newTurno=document.getElementById('m-turno').value.trim();
+  const newResp=document.getElementById('m-resp').value.trim();
+  history.push({machineName:m.name,prevStatus:m.status,newStatus:modalStatus,obs:newObs,resp:newResp,at:t});
+  machines[modalId]={...m,status:modalStatus,obs:newObs,turno:newTurno||m.turno,resp:newResp,updatedAt:t};
+  saveData();
+  closeModal();
+  renderAll();
+  const c=CLS[modalStatus];
+  showToast(`${ICO[modalStatus]} ${m.name} → ${LBL[modalStatus]}`,c==='ok'?'tok':c==='wn'?'twn':'tnk');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+let toastTmr=null;
+function showToast(msg,cls=''){
+  clearTimeout(toastTmr);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+cls+' show';
+  toastTmr=setTimeout(()=>t.className='toast',2800);
+}
+
+// ── KEYBOARD ───────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+loadData();
+renderAll();
+document.getElementById('sync-time').textContent=localStorage.getItem(SK)?ts():'—';
+</script>
+</body>
+</html>
