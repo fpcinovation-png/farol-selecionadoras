@@ -349,11 +349,11 @@ input:focus,textarea:focus{border-color:var(--a2)!important;outline:none;box-sha
         </div>
 
         <div class="admin-card">
-          <div class="admin-head"><h3>⚙️ Configuração do Sistema</h3></div>
-          <div style="padding:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <div style="flex:1;font-size:13px;color:var(--mu)">Redefinir conexão com o banco de dados (JSONBin API Key)</div>
-            <button onclick="resetConfig()" style="border:1.5px solid var(--nk);background:transparent;color:var(--nk);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;">Redefinir conexão</button>
+          <div class="admin-head" style="display:flex;align-items:center;justify-content:space-between">
+            <h3>🔒 Log de Acesso</h3>
+            <span style="font-size:11px;color:var(--mu)">Últimos 200 registros</span>
           </div>
+          <div id="access-log-table" style="max-height:320px;overflow-y:auto;padding:0 16px 12px"></div>
         </div>
       </div>
     </div>
@@ -433,11 +433,64 @@ let history=[];
 let users=[...DEFAULT_USERS];
 let curTab='farol',curFil='all';
 let modalId=null,modalStatus='ok';
-const BACKEND='https://script.google.com/macros/s/AKfycbyFQ-YMaup8Yy8IUgm6PN_Goy_43CSX0has6ktYSeB7c2UnUZe6Qf0O0MGGxmGOAIjE/exec';
+const BACKEND='https://script.google.com/macros/s/AKfycbyiurpCtqEaL31GoZ2yZp6qy2L6LJEhERaZ97cbOMskw1bQCRbmWfKYiEFTLlofInqrew/exec';
 let pollTimer=null,isSaving=false;
 let currentUser=null;
 
 function ts(){return new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function fmtDisplay(str){
+  if(!str) return '';
+  if(/^\d{2}\/\d{2}\/\d{4}/.test(str)) return str;
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(iso) return iso[3]+'/'+iso[2]+'/'+iso[1];
+  const isoT = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if(isoT) return isoT[3]+'/'+isoT[2]+'/'+isoT[1]+' '+isoT[4]+':'+isoT[5];
+  const d = new Date(str);
+  if(!isNaN(d.getTime()))
+    return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  return str;
+}
+// ── SHA256 para senhas ─────────────────────────────────────────────
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function verificarSenha(plain, stored){
+  if(stored && stored.length === 64 && /^[0-9a-f]+$/.test(stored)){
+    return (await sha256(plain)) === stored;
+  }
+  return btoa(plain) === stored;
+}
+async function hashSenha(plain){ return await sha256(plain); }
+// ── Estado de log de acesso e timeout de sessão ────────────────────
+let accessLog = [];
+let timeoutTimer = null;
+const TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos
+function registrarAcesso(username, tipo){
+  accessLog.unshift({username, tipo, at: ts()});
+  if(accessLog.length > 200) accessLog = accessLog.slice(0, 200);
+  writeBin({machines, history, users, accessLog}).catch(()=>{});
+}
+function resetTimeout(){
+  clearTimeout(timeoutTimer);
+  timeoutTimer = setTimeout(()=>{
+    registrarAcesso(currentUser?.username||'?', 'timeout');
+    showToast('⏱ Sessão encerrada por inatividade','tpu');
+    setTimeout(logout, 2000);
+  }, TIMEOUT_MS);
+}
+function initTimeout(){
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(ev=>
+    document.addEventListener(ev, resetTimeout, {passive:true})
+  );
+  resetTimeout();
+}
+function clearTimeoutSession(){
+  clearTimeout(timeoutTimer);
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(ev=>
+    document.removeEventListener(ev, resetTimeout)
+  );
+}
 
 // ── AUTH ───────────────────────────────────────────────────────────────────
 async function doLogin(){
@@ -456,16 +509,26 @@ async function doLogin(){
       users=data.users;
       localStorage.setItem('farol-users-cache',JSON.stringify(users));
     }
+    if(data.accessLog) accessLog = data.accessLog;
   }catch(_){
     // fallback to cached users if cloud unreachable
   }
   btn.disabled=false;btn.textContent='Entrar';
 
-  // Check against users list
-  const found=users.find(x=>x.username.toLowerCase()===u.toLowerCase()&&x.password===btoa(p));
-  if(!found){err.textContent='Usuário ou senha incorretos.';err.style.display='block';return;}
+  // Check against users list — SHA256 com fallback para senhas legadas
+  let found = null;
+  for(const x of users){
+    if(x.username.toLowerCase()===u.toLowerCase()){
+      if(await verificarSenha(p, x.password)){ found=x; break; }
+    }
+  }
+  if(!found){
+    registrarAcesso(u, 'falha');
+    err.textContent='Usuário ou senha incorretos.';err.style.display='block';return;
+  }
 
   currentUser=found;
+  registrarAcesso(found.username, 'login');
   err.style.display='none';
   sessionStorage.setItem('farol-user',JSON.stringify({username:found.username,role:found.role}));
   // Always start on farol tab
@@ -487,9 +550,12 @@ async function doLogin(){
 
   // Keys embedded — go straight to app
   initApp();
+  initTimeout();
 }
 
 function logout(){
+  if(currentUser) registrarAcesso(currentUser.username, 'logout');
+  clearTimeoutSession();
   sessionStorage.removeItem('farol-user');
   currentUser=null;
   clearInterval(pollTimer);
@@ -520,41 +586,85 @@ async function writeBin(data){
   if(res.error)throw new Error(res.error);
 }
 
-// ── SETUP ──────────────────────────────────────────────────────────────────
-function resetConfig(){if(!confirm('Redefinir e recarregar?'))return;sessionStorage.clear();localStorage.clear();location.reload();}
-
 // ── INIT ───────────────────────────────────────────────────────────────────
 async function initApp(){
   setSyncState('busy','Carregando...');
   try{
     const data=await readBin();
-    if(data.machines)machines=data.machines;
-    if(data.history)history=data.history;
+
+    // Proteção: nunca sobrescreve os dados existentes com um banco vazio
+    if(!data || (!data.machines && !data.users)){
+      throw new Error('O banco retornou vazio ou inválido — não vou sobrescrever os dados existentes. Tente novamente.');
+    }
+
+    if(data.machines && data.machines.length){
+      machines=data.machines.map(m=>({
+        ...m,
+        updatedAt: fmtDisplay(m.updatedAt),
+        dataOcorrenciaFmt: fmtDisplay(m.dataOcorrenciaFmt),
+      }));
+    }
+    if(data.history) history=data.history.map(h=>({...h, at: fmtDisplay(h.at)}));
+    if(data.version) lastVersion = String(data.version);
+    if(data.accessLog) accessLog = data.accessLog;
     if(data.users&&data.users.length){
-      // Cloud is the source of truth — use it as-is
       users=data.users;
     }
+
     document.getElementById('loading-overlay').classList.add('hidden');
     document.getElementById('main-content').classList.remove('hidden');
     renderAll();
     populateRelFrota();
     setSyncState('ok','AO VIVO');
     document.getElementById('sync-time').textContent=ts();
-    pollTimer=setInterval(poll,5000);
+    // Verifica versão a cada 1s — só baixa dados se houver mudança (sync leve)
+    await checkVersion();
+    pollTimer=setInterval(checkVersion,1000);
   }catch(e){
     setSyncState('err','Erro');
     document.getElementById('loading-overlay').innerHTML=`<div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-weight:600;margin-bottom:8px">Erro ao conectar</div><div style="font-size:13px;color:var(--mu);margin-bottom:16px">${e.message}</div><button onclick="location.reload()" class="bs">Tentar novamente</button>`;
   }
 }
 
-async function poll(){
+let lastVersion = null;
+let isChecking = false;
+async function checkVersion(){
+  if(isSaving || isChecking) return;
+  isChecking = true;
+  try{
+    const r = await fetch(BACKEND, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'version'})
+    });
+    const d = await r.json();
+    const v = String(d.version ?? '');
+    if(v && v !== lastVersion){
+      if(lastVersion !== null){
+        await poll(true);
+        showToast('🔄 Dados atualizados!','tok');
+      }
+      lastVersion = v;
+    }
+    setSyncState('ok','AO VIVO');
+  }catch(_){setSyncState('err','Sem conexão');}
+  finally{ isChecking = false; }
+}
+
+async function poll(silent=false){
   if(isSaving)return;
   try{
     const data=await readBin();
-    if(data.machines){
-      machines=data.machines;
-      if(data.history)history=data.history;
+    // Proteção: nunca aceita array de machines vazio como válido
+    if(data && data.machines && data.machines.length){
+      machines=data.machines.map(m=>({
+        ...m,
+        updatedAt: fmtDisplay(m.updatedAt),
+        dataOcorrenciaFmt: fmtDisplay(m.dataOcorrenciaFmt),
+      }));
+      if(data.history) history=data.history.map(h=>({...h, at: fmtDisplay(h.at)}));
       if(data.users&&data.users.length) users=data.users;
+      if(data.accessLog) accessLog = data.accessLog;
     }
     renderAll();
     setSyncState('ok','AO VIVO');
@@ -564,7 +674,7 @@ async function poll(){
 
 async function persistAll(){
   isSaving=true;setSyncState('busy','Salvando...');
-  try{await writeBin({machines,history,users});setSyncState('ok','AO VIVO');document.getElementById('sync-time').textContent=ts();}
+  try{await writeBin({machines,history,users,accessLog});setSyncState('ok','AO VIVO');document.getElementById('sync-time').textContent=ts();}
   catch(e){setSyncState('err','Erro ao salvar');showToast('⚠️ Erro ao salvar na nuvem','tpu');console.error(e);}
   finally{isSaving=false;}
 }
@@ -587,7 +697,36 @@ function renderAll(){
   document.getElementById('k-nk-bar').style.width=Math.round(nk/16*100)+'%';
   const r=document.getElementById('real-av');r.textContent=av+'%';r.style.color=ac;
   renderFarol();renderTable();renderHistory();
-  if(currentUser?.role==='admin')renderAdminUsers();
+  if(currentUser?.role==='admin'){renderAdminUsers();renderAccessLog();}
+}
+
+function renderAccessLog(){
+  const el = document.getElementById('access-log-table');
+  if(!el) return;
+  if(!accessLog.length){
+    el.innerHTML='<div style="color:var(--mu);font-size:12px;padding:12px 0">Nenhum registro de acesso ainda.</div>';
+    return;
+  }
+  const ICO_LOG = {login:'🟢',logout:'🔴',timeout:'⏱',falha:'⚠️'};
+  const CLR_LOG = {login:'var(--ok)',logout:'var(--nk)',timeout:'var(--wn)',falha:'#f97316'};
+  el.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:12px">'
+    + '<thead><tr style="background:var(--bg2,#f8fafc)">'
+    + '<th style="padding:8px;text-align:left;color:var(--mu);font-weight:600">Usuário</th>'
+    + '<th style="padding:8px;text-align:left;color:var(--mu);font-weight:600">Evento</th>'
+    + '<th style="padding:8px;text-align:left;color:var(--mu);font-weight:600">Data/Hora</th>'
+    + '</tr></thead><tbody>'
+    + accessLog.map((l,i)=>{
+        const bg = i%2===0?'#f8fafc':'#ffffff';
+        const clr = CLR_LOG[l.tipo]||'var(--mu)';
+        const ico = ICO_LOG[l.tipo]||'•';
+        const lbl = l.tipo==='login'?'Entrou':l.tipo==='logout'?'Saiu':l.tipo==='timeout'?'Timeout (inatividade)':l.tipo==='falha'?'Tentativa falha':l.tipo;
+        return '<tr style="background:'+bg+'">'
+          +'<td style="padding:7px 8px;font-weight:600">'+l.username+'</td>'
+          +'<td style="padding:7px 8px"><span style="color:'+clr+';font-weight:700">'+ico+' '+lbl+'</span></td>'
+          +'<td style="padding:7px 8px;color:var(--mu)">'+l.at+'</td>'
+          +'</tr>';
+      }).join('')
+    + '</tbody></table>';
 }
 
 function renderFarol(){
@@ -667,7 +806,8 @@ async function addUser(){
   if(!un||!pw){showToast('Preencha usuário e senha','tpu');return;}
   if(pw.length<6){showToast('Senha mínima: 6 caracteres','tpu');return;}
   if(users.find(u=>u.username.toLowerCase()===un.toLowerCase())){showToast('Usuário já existe','tpu');return;}
-  users.push({username:un,password:btoa(pw),role,createdAt:currentUser.username});
+  const pwHash = await hashSenha(pw);
+  users.push({username:un,password:pwHash,role,createdAt:currentUser.username});
   document.getElementById('new-username').value='';
   document.getElementById('new-password').value='';
   renderAdminUsers();
@@ -722,11 +862,13 @@ function updateModalBtns(){
 
 async function saveModal(){
   if(modalId===null||isSaving)return;
-  const m=machines[modalId];const t=ts();
+  const m=machines[modalId];
+  if(!m){showToast('⚠️ Selecionadora não encontrada','tnk');return;}
+  const t=ts();
   const newObs=document.getElementById('m-obs').value.trim();
   const newTurno=document.getElementById('m-turno').value.trim();
   const newResp=document.getElementById('m-resp').value.trim();
-  history.push({machineName:m.name,prevStatus:m.status,newStatus:modalStatus,obs:newObs,resp:newResp,user:currentUser?.username,at:t});
+  history.push({id:m.id,code:m.code,machineName:m.name,prevStatus:m.status,newStatus:modalStatus,obs:newObs,resp:newResp,user:currentUser?.username,at:t});
   machines[modalId]={...m,status:modalStatus,obs:newObs,turno:newTurno||m.turno,resp:newResp,updatedAt:t};
   closeModal();renderAll();
   const c=CLS[modalStatus];
@@ -761,11 +903,11 @@ async function saveNewPwd(){
   errEl.style.display='none';
 
   const me=users.find(u=>u.username===currentUser.username);
-  if(!me||me.password!==btoa(cur)){errEl.textContent='Senha atual incorreta.';errEl.style.display='block';return;}
+  if(!me||!(await verificarSenha(cur, me.password))){errEl.textContent='Senha atual incorreta.';errEl.style.display='block';return;}
   if(nw.length<6){errEl.textContent='Nova senha deve ter pelo menos 6 caracteres.';errEl.style.display='block';return;}
   if(nw!==cf){errEl.textContent='As senhas não coincidem.';errEl.style.display='block';return;}
 
-  me.password=btoa(nw);
+  me.password=await hashSenha(nw);
   closePwd();
   showToast('✅ Senha alterada com sucesso!','tok');
   await persistAll();
@@ -798,52 +940,56 @@ function gerarRelatorio(){
   const startD=new Date(start+'T00:00:00');
   const endD  =new Date(end+'T23:59:59');
 
-  // Filter history for NOK events in period
-  const nkEvents=history.filter(h=>{
-    if(h.newStatus!=='nok') return false;
-    const hDate=parseRelDate(h.at);
-    if(!hDate||hDate<startD||hDate>endD) return false;
-    if(frotaFil&&String(h.machineName||'')!==String(machines.find(m=>m.id==frotaFil)?.name||frotaFil)) return false;
-    return true;
-  });
-
-  // Currently NOK machines
-  const currentNok=machines.filter(m=>{
-    if(m.status!=='nok') return false;
-    if(frotaFil&&String(m.id)!==String(frotaFil)) return false;
-    return true;
-  });
-
-  // Group by machine
   const report={};
-  nkEvents.forEach(h=>{
-    const key=h.machineName||h.id||'—';
-    if(!report[key]) report[key]={name:key,eventos:[],diasIndisp:new Set()};
-    const hDate=parseRelDate(h.at);
-    if(hDate){
-      const ds=hDate.toLocaleDateString('pt-BR');
-      report[key].diasIndisp.add(ds);
-      report[key].eventos.push({data:ds,hora:hDate.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),obs:h.obs||'—',resp:h.resp||'—',user:h.user||'—'});
-    }
-  });
-  currentNok.forEach(m=>{
-    const key=m.name;
-    if(!report[key]) report[key]={name:key,eventos:[],diasIndisp:new Set()};
-    if(m.updatedAt){
-      const hDate=parseRelDate(m.updatedAt);
-      if(hDate&&hDate>=startD&&hDate<=endD){
-        const ds=hDate.toLocaleDateString('pt-BR');
-        report[key].diasIndisp.add(ds);
-        if(!report[key].eventos.find(e=>e.data===ds)){
-          report[key].eventos.push({data:ds,hora:hDate.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),obs:m.obs||'—',resp:m.resp||'—',user:'—'});
+
+  machines.forEach(maq=>{
+    if(frotaFil && String(maq.id)!==String(frotaFil)) return;
+
+    const hist=[...history]
+      .filter(h=>String(h.id ?? h.machineId ?? h.code)===String(maq.id) || h.machineName===maq.name)
+      .filter(h=>parseRelDate(h.at))
+      .sort((a,b)=>parseRelDate(a.at)-parseRelDate(b.at));
+
+    if(!hist.length && maq.status!=='nok') return;
+
+    const diasIndisp=new Set();
+    const eventos=[];
+    let nokInicio=null, dataInicio=null, dataFim=null;
+
+    hist.forEach(h=>{
+      const d=parseRelDate(h.at);
+      if(!d) return;
+      if(h.newStatus==='nok'){
+        if(!nokInicio){ nokInicio=d; if(!dataInicio) dataInicio=d; }
+        if(d<=endD){
+          eventos.push({data:d.toLocaleDateString('pt-BR'),hora:d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),obs:h.obs||'—',resp:h.resp||'—',user:h.user||'—'});
         }
+      } else {
+        if(nokInicio){ adicionarDias(diasIndisp,nokInicio,d,startD,endD); dataFim=d; nokInicio=null; }
       }
+    });
+
+    if(nokInicio){
+      adicionarDias(diasIndisp,nokInicio,new Date(),startD,endD);
+      dataFim=null;
+    } else if(maq.status==='nok' && !hist.length){
+      const ini=parseRelDate(maq.updatedAt)||startD;
+      adicionarDias(diasIndisp,ini,new Date(),startD,endD);
+      dataInicio=ini; dataFim=null;
+    }
+
+    if(diasIndisp.size>0){
+      report[maq.name]={
+        name: maq.name,
+        code: maq.code,
+        eventos, diasIndisp, dataInicio, dataFim,
+      };
     }
   });
 
   const reportArr=Object.values(report).sort((a,b)=>b.diasIndisp.size-a.diasIndisp.size);
   const totFrotas=reportArr.length;
-  const totEvts=nkEvents.length;
+  const totEvts=reportArr.reduce((s,r)=>s+r.eventos.length,0);
   const totDias=reportArr.reduce((s,r)=>s+r.diasIndisp.size,0);
 
   let html='';
@@ -868,11 +1014,16 @@ function gerarRelatorio(){
     html+='<div style="overflow-x:auto"><table><thead><tr><th>Selecionadora</th><th>Dias Indisp.</th><th>Datas</th><th>Ocorrências</th><th>Última Obs.</th></tr></thead><tbody>';
     reportArr.forEach(r=>{
       const lastObs=r.eventos.length?r.eventos[r.eventos.length-1].obs:'—';
-      const datas=[...r.diasIndisp].join(' · ');
+      const fmtD = d => d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}) : null;
+      const inicio = fmtD(r.dataInicio);
+      const fim    = fmtD(r.dataFim);
+      const datas  = inicio && fim  ? `${inicio} - ${fim}`
+                   : inicio && !fim ? `${inicio} - Em aberto`
+                   : '—';
       html+=`<tr>
         <td style="font-weight:700;color:var(--ac)">${r.name}</td>
         <td><span style="background:var(--nkb);color:var(--nk);font-weight:800;padding:2px 9px;border-radius:99px;font-size:12px">${r.diasIndisp.size} dia${r.diasIndisp.size!==1?'s':''}</span></td>
-        <td style="font-size:11px;color:var(--mu);max-width:200px">${datas}</td>
+        <td style="font-size:11px;color:var(--mu);white-space:nowrap">${datas}</td>
         <td style="font-size:12px;font-weight:700;color:var(--wn);text-align:center">${r.eventos.length}</td>
         <td style="font-size:11px;color:var(--mu);max-width:180px">${lastObs}</td>
       </tr>`;
@@ -885,10 +1036,23 @@ function gerarRelatorio(){
   window._relPeriod={start,end};
 }
 
+function adicionarDias(set, inicio, fim, startD, endD){
+  let d = new Date(Math.max(inicio.getTime(), startD.getTime()));
+  d.setHours(0,0,0,0);
+  const fimDia = new Date(fim); fimDia.setHours(0,0,0,0);
+  const limite = new Date(Math.min(fimDia.getTime()-1, endD.getTime()));
+  while(d <= limite){
+    set.add(d.toLocaleDateString('pt-BR'));
+    d = new Date(d); d.setDate(d.getDate()+1);
+  }
+}
+
 function parseRelDate(str){
   if(!str) return null;
   const m=str.match(/(\d{2})\/(\d{2})\/(\d{4}),?\s*(\d{2}):(\d{2})/);
   if(m) return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5]);
+  const iso = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(iso) return new Date(+iso[1],+iso[2]-1,+iso[3]);
   return null;
 }
 
@@ -931,7 +1095,7 @@ function exportRelatorio(){
     ws1['!merges']=[{s:{r:0,c:0},e:{r:0,c:4}},{s:{r:1,c:0},e:{r:1,c:4}},{s:{r:2,c:0},e:{r:2,c:4}}];
 
     sc(ws1,'A1','RELATÓRIO DE INDISPONIBILIDADE — FAROL DAS SELECIONADORAS',S.title);
-    sc(ws1,'A2','Mercado Livre — Cabo Santo Agostinho',S.sub1);
+    sc(ws1,'A2','Disktrans',S.sub1);
     sc(ws1,'A3',`Período: ${startFmt}  a  ${endFmt}  |  Selecionadoras: ${totFrotas}  |  Dias: ${totDias}  |  Ocorrências: ${totEvts}`,S.sub2);
     for(let c=0;c<5;c++) sc(ws1,String.fromCharCode(65+c)+'4','',S.gap);
 
@@ -941,7 +1105,12 @@ function exportRelatorio(){
       const row=6+i;
       const rs=i%2===0?S.row1:S.row2;
       const ns=i%2===0?S.name1:S.name2;
-      const datas=[...r.diasIndisp].join(' | ');
+      const fmtD = d => d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}) : null;
+      const ini  = fmtD(r.dataInicio);
+      const fim  = fmtD(r.dataFim);
+      const datas = ini && fim  ? `${ini} - ${fim}`
+                  : ini && !fim ? `${ini} - Em aberto`
+                  : '—';
       const lastObs=r.eventos.length?r.eventos[r.eventos.length-1].obs:'—';
       sc(ws1,'A'+row,r.name,ns);
       sc(ws1,'B'+row,r.diasIndisp.size,S.dias);
@@ -963,7 +1132,7 @@ function exportRelatorio(){
     ws3['!merges']=[{s:{r:0,c:0},e:{r:0,c:1}},{s:{r:1,c:0},e:{r:1,c:1}},{s:{r:2,c:0},e:{r:2,c:1}}];
 
     sc(ws3,'A1','RESUMO RÁPIDO DE INDISPONIBILIDADE',S.title);
-    sc(ws3,'A2','Mercado Livre — Cabo Santo Agostinho',S.sub1);
+    sc(ws3,'A2','Disktrans',S.sub1);
     sc(ws3,'A3',`Período: ${startFmt}  a  ${endFmt}  |  Ordenado: menor → maior`,S.sub2);
     sc(ws3,'A4','',S.gap); sc(ws3,'B4','',S.gap);
     sc(ws3,'A5','Máquina',S.header);
@@ -972,8 +1141,12 @@ function exportRelatorio(){
     resumoRapido.forEach((r,i)=>{
       const row=6+i;
       const bg=i%2===0?'F8FAFC':'FFFFFF';
-      const datas=[...r.diasIndisp].sort();
-      const periodo3=datas.length===1?datas[0]:datas.length>1?`${datas[0]} - ${datas[datas.length-1]}`:'—';
+      const fmtD3 = d => d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}) : null;
+      const ini3 = fmtD3(r.dataInicio);
+      const fim3 = fmtD3(r.dataFim);
+      const periodo3 = ini3 && fim3  ? `${ini3} - ${fim3}`
+                     : ini3 && !fim3 ? `${ini3} - Em aberto`
+                     : '—';
       const diasStr=String(r.diasIndisp.size).padStart(2,'0')+` (${periodo3})`;
       const dc=r.diasIndisp.size>=10?'991B1B':r.diasIndisp.size>=5?'DC2626':r.diasIndisp.size>=2?'D97706':'059669';
       const db=r.diasIndisp.size>=10?'FEE2E2':r.diasIndisp.size>=5?'FEF2F2':r.diasIndisp.size>=2?'FFFBEB':'ECFDF5';
