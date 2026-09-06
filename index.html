@@ -457,7 +457,7 @@ const BASE_MACHINES = [];
 Object.entries(CATEGORIAS).forEach(([cat, frotas]) => {
   frotas.forEach(f => {
     BASE_MACHINES.push({
-      id: f, frota: f, modelo: `Selecionadora ${fmtCodigo(f)}`, categoria: cat,
+      id: f, frota: f, modelo: '', categoria: cat,
       status:'ok', obs:'', turno:'Manhã', resp:'', updatedAt:null
     });
   });
@@ -768,7 +768,7 @@ function populateFilters(){
 
 // ── RENDER ALL ────────────────────────────────────────────────────────────────
 function renderAll(){
-  const ok  = machines.filter(m=>m.status==='ok').length;
+  const ok  = machines.filter(m=>m.status==='ok'||m.status==='warn').length;
   const wn  = machines.filter(m=>m.status==='warn').length;
   const nk  = machines.filter(m=>m.status==='nok').length;
   const tot = machines.length;
@@ -843,7 +843,6 @@ function renderFarol(){
               <div class="mdot${m.status==='nok'?' pnk':''}"></div>
               <div style="flex:1;min-width:0">
                 <div class="mfrota">Selecionadora ${fmtCodigo(m.frota)}</div>
-                <div class="mmodelo">${m.modelo}</div>
               </div>
               <div class="mpill">${PLB[m.status]||'DISP.'}</div>
             </div>
