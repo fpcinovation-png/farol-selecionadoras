@@ -439,17 +439,20 @@ const BACKEND = 'https://script.google.com/macros/s/AKfycbyiurpCtqEaL31GoZ2yZp6q
 
 // ── FROTAS BASE ───────────────────────────────────────────────────────────────
 const CATEGORIAS = {
-  "Selecionadoras": ["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15"],
+  "Selecionadoras": ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"],
 };
 
 const MODELOS = {}; // Sem modelo específico
+
+// Formata o código de exibição com 2 dígitos (1 -> 01)
+function fmtCodigo(f){ return String(f).padStart(2,'0'); }
 
 // Build flat machines list preserving category
 const BASE_MACHINES = [];
 Object.entries(CATEGORIAS).forEach(([cat, frotas]) => {
   frotas.forEach(f => {
     BASE_MACHINES.push({
-      id: f, frota: f, modelo: `Selecionadora ${f}`, categoria: cat,
+      id: f, frota: f, modelo: `Selecionadora ${fmtCodigo(f)}`, categoria: cat,
       status:'ok', obs:'', turno:'Manhã', resp:'', updatedAt:null
     });
   });
@@ -747,7 +750,7 @@ function populateFilters(){
   cats.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; tcat.appendChild(o); });
   // Relatorio frota select
   const rf = document.getElementById('rel-frota');
-  BASE_MACHINES.forEach(m=>{ const o=document.createElement('option'); o.value=m.frota; o.textContent=`Selecionadora ${m.frota} — ${m.modelo}`; rf.appendChild(o); });
+  BASE_MACHINES.forEach(m=>{ const o=document.createElement('option'); o.value=m.frota; o.textContent=`Selecionadora ${fmtCodigo(m.frota)} — ${m.modelo}`; rf.appendChild(o); });
   // Relatorio cat select
   const rc = document.getElementById('rel-cat');
   cats.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; rc.appendChild(o); });
@@ -834,7 +837,7 @@ function renderFarol(){
             <div class="mh">
               <div class="mdot${m.status==='nok'?' pnk':''}"></div>
               <div style="flex:1;min-width:0">
-                <div class="mfrota">Selecionadora ${m.frota}</div>
+                <div class="mfrota">Selecionadora ${fmtCodigo(m.frota)}</div>
                 <div class="mmodelo">${m.modelo}</div>
               </div>
               <div class="mpill">${PLB[m.status]||'DISP.'}</div>
@@ -878,7 +881,7 @@ function renderTable(){
   document.getElementById('tbl-body').innerHTML=`<table>
     <thead><tr><th>Selecionadora</th><th>Modelo</th><th>Categoria</th><th>Status</th><th>Observação</th><th>Turno</th><th>Responsável</th><th>Data Ocorrência</th><th>Atualizado</th><th></th></tr></thead>
     <tbody>${rows.map(m=>{const c=CLS[m.status]||'ok';return`<tr>
-      <td style="font-weight:800;color:var(--ac)">${m.frota}</td>
+      <td style="font-weight:800;color:var(--ac)">${fmtCodigo(m.frota)}</td>
       <td style="font-size:12px">${m.modelo}</td>
       <td style="font-size:11px;color:var(--mu)">${m.categoria}</td>
       <td><span class="pl ${c}"><span class="pdot ${c}"></span>${LBL[m.status]}</span></td>
@@ -905,7 +908,7 @@ function renderHistory(){
       <div class="hdot ${c}"></div>
       <div style="flex:1">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px">
-          <span style="font-weight:700;font-size:13px">Selecionadora ${h.frota}</span>
+          <span style="font-weight:700;font-size:13px">Selecionadora ${fmtCodigo(h.frota)}</span>
           <span style="font-size:11px;color:var(--mu)">${h.modelo||''}</span>
           <span style="color:var(--mu)">→</span>
           <span style="font-size:11px;font-weight:700;color:${hc}">${ICO[h.newStatus]} ${LBL[h.newStatus]}</span>
@@ -1332,10 +1335,10 @@ function setTab(t,btn){
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function openModal(frota){
-  const m=machines.find(x=>x.frota===frota);
+  const m=machines.find(x=>String(x.frota)===String(frota));
   if(!m) return;
-  modalId=frota; modalStatus=m.status;
-  document.getElementById('m-title').textContent=`Selecionadora ${m.frota}`;
+  modalId=String(frota); modalStatus=m.status;
+  document.getElementById('m-title').textContent=`Selecionadora ${fmtCodigo(m.frota)}`;
   document.getElementById('m-subtitle').textContent=`${m.modelo} · ${m.categoria}`;
   document.getElementById('m-obs').value=m.obs||'';
   document.getElementById('m-turno').value=m.turno||'';
@@ -1358,7 +1361,7 @@ function updateModalBtns(){
 
 async function saveModal(){
   if(!modalId||isSaving) return;
-  const m=machines.find(x=>x.frota===modalId);
+  const m=machines.find(x=>String(x.frota)===String(modalId));
   if(!m){showToast('⚠️ Selecionadora não encontrada','tnk');return;}
   const t=ts();
   const newObs=document.getElementById('m-obs').value.trim();
@@ -1369,11 +1372,11 @@ async function saveModal(){
   // Formata data para exibição: dd/mm/yyyy hh:mm
   const dataFmt = newData ? newData.split('-').reverse().join('/') + (newHora ? ' ' + newHora : '') : '';
   history.push({frota:m.frota,modelo:m.modelo,categoria:m.categoria,prevStatus:m.status,newStatus:modalStatus,obs:newObs,resp:newResp,user:currentUser?.username,at:t,dataOcorrencia:dataFmt});
-  const idx=machines.findIndex(x=>x.frota===modalId);
+  const idx=machines.findIndex(x=>String(x.frota)===String(modalId));
   machines[idx]={...m,status:modalStatus,obs:newObs,turno:newTurno||m.turno,resp:newResp,updatedAt:t,dataOcorrencia:newData,horaOcorrencia:newHora,dataOcorrenciaFmt:dataFmt};
   closeModal(); renderAll();
   const c=CLS[modalStatus];
-  showToast(`${ICO[modalStatus]} Selecionadora ${m.frota} → ${LBL[modalStatus]}`,c==='ok'?'tok':c==='wn'?'twn':'tnk');
+  showToast(`${ICO[modalStatus]} Selecionadora ${fmtCodigo(m.frota)} → ${LBL[modalStatus]}`,c==='ok'?'tok':c==='wn'?'twn':'tnk');
   await persistAll();
 }
 
