@@ -271,9 +271,9 @@ tbody tr:hover td{background:#fafbfd}
       <div class="tw">
         <div class="tabs">
           <button class="tab on" onclick="setTab('farol',this)">🚦 Farol</button>
-          <button class="tab" onclick="setTab('tabela',this)">📋 Tabela</button>
-          <button class="tab" onclick="setTab('historico',this)">📝 Histórico</button>
-          <button class="tab" onclick="setTab('relatorio',this)">📊 Relatório</button>
+          <button class="tab hidden" id="tab-tabela" onclick="setTab('tabela',this)">📋 Tabela</button>
+          <button class="tab hidden" id="tab-historico" onclick="setTab('historico',this)">📝 Histórico</button>
+          <button class="tab hidden" id="tab-relatorio" onclick="setTab('relatorio',this)">📊 Relatório</button>
           <button class="tab hidden" id="tab-admin" onclick="setTab('admin',this)">👑 Admin</button>
         </div>
         <div style="flex:1"></div>
@@ -599,6 +599,9 @@ function startApp(){
   document.getElementById('app').classList.remove('hidden');
   if(currentUser.role==='admin'){
     document.getElementById('tab-admin').classList.remove('hidden');
+    document.getElementById('tab-tabela').classList.remove('hidden');
+    document.getElementById('tab-historico').classList.remove('hidden');
+    document.getElementById('tab-relatorio').classList.remove('hidden');
     document.getElementById('btn-clear-hist').classList.remove('hidden');
   }
   document.getElementById('user-avatar').textContent = currentUser.username[0].toUpperCase();
@@ -621,6 +624,9 @@ function logout(){
   document.getElementById('login-pass').value='';
   document.getElementById('login-error').style.display='none';
   document.getElementById('tab-admin').classList.add('hidden');
+  document.getElementById('tab-tabela').classList.add('hidden');
+  document.getElementById('tab-historico').classList.add('hidden');
+  document.getElementById('tab-relatorio').classList.add('hidden');
 }
 
 function resetToFarol(){
@@ -1329,7 +1335,7 @@ async function exportGoogleSheets(){
 }
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function setTab(t,btn){
-  if(t==='admin'&&currentUser?.role!=='admin'){showToast('⛔ Acesso restrito','tnk');return;}
+  if(t!=='farol'&&currentUser?.role!=='admin'){showToast('⛔ Acesso restrito','tnk');return;}
   curTab=t;
   ['farol','tabela','historico','relatorio','admin'].forEach(v=>{const el=document.getElementById('view-'+v);if(el)el.classList.add('hidden');});
   document.getElementById('view-'+t).classList.remove('hidden');
@@ -1471,7 +1477,12 @@ document.addEventListener('keydown',e=>{
       currentUser=u;
       document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('app').classList.remove('hidden');
-      if(u.role==='admin') document.getElementById('tab-admin').classList.remove('hidden');
+      if(u.role==='admin'){
+        document.getElementById('tab-admin').classList.remove('hidden');
+        document.getElementById('tab-tabela').classList.remove('hidden');
+        document.getElementById('tab-historico').classList.remove('hidden');
+        document.getElementById('tab-relatorio').classList.remove('hidden');
+      }
       document.getElementById('user-avatar').textContent=u.username[0].toUpperCase();
       document.getElementById('user-name-bar').textContent=u.username;
       document.getElementById('user-role-bar').textContent=u.role==='admin'?'· Admin':'';
